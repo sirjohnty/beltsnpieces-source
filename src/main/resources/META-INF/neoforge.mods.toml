@@ -1,0 +1,38 @@
+modLoader="javafml"
+loaderVersion="[4,)"
+license="MIT"
+[[mods]]
+modId="bitsnbelts"
+version="${modVersion}"
+displayName="Create: Bits n Belts"
+logoFile="logo.png"
+authors="SirJohnty"
+description='''Adds new features and quality of life changes mainly revolving around belts and logistics.
+
+AI was used during the creation of this mod.'''
+[[mixins]]
+config="bitsnbelts.mixins.json"
+[[dependencies.bitsnbelts]]
+modId="neoforge"
+type="required"
+versionRange="[21.1.206,21.2)"
+ordering="NONE"
+side="BOTH"
+[[dependencies.bitsnbelts]]
+modId="minecraft"
+type="required"
+versionRange="[1.21.1]"
+ordering="NONE"
+side="BOTH"
+[[dependencies.bitsnbelts]]
+modId="create"
+type="required"
+versionRange="[6.0.9,6.0.11)"
+ordering="AFTER"
+side="BOTH"
+[[dependencies.bitsnbelts]]
+modId="unlimited_chain_conveyors"
+type="incompatible"
+versionRange="[0,)"
+reason="Create: Bits n Belts includes this feature. Remove the old Unlimited Chain Conveyors JAR."
+side="BOTH"

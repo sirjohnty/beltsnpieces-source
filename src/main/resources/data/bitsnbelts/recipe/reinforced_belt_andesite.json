@@ -1,0 +1,75 @@
+{
+  "type": "create:sequenced_assembly",
+  "ingredient": {
+    "item": "create:belt_connector"
+  },
+  "loops": 1,
+  "results": [
+    {
+      "id": "bitsnbelts:reinforced_belt",
+      "count": 1
+    }
+  ],
+  "sequence": [
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "bitsnbelts:incomplete_reinforced_belt"
+        },
+        {
+          "tag": "bitsnbelts:andesite_alloy_sheets"
+        }
+      ],
+      "results": [
+        {
+          "id": "bitsnbelts:incomplete_reinforced_belt"
+        }
+      ]
+    },
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "bitsnbelts:incomplete_reinforced_belt"
+        },
+        {
+          "item": "create:brass_nugget"
+        }
+      ],
+      "results": [
+        {
+          "id": "bitsnbelts:incomplete_reinforced_belt"
+        }
+      ]
+    },
+    {
+      "type": "create:deploying",
+      "ingredients": [
+        {
+          "item": "bitsnbelts:incomplete_reinforced_belt"
+        },
+        {
+          "item": "create:brass_nugget"
+        }
+      ],
+      "results": [
+        {
+          "id": "bitsnbelts:incomplete_reinforced_belt"
+        }
+      ]
+    }
+  ],
+  "transitional_item": {
+    "id": "bitsnbelts:incomplete_reinforced_belt"
+  },
+  "neoforge:conditions": [
+    {
+      "type": "neoforge:not",
+      "value": {
+        "type": "neoforge:tag_empty",
+        "tag": "bitsnbelts:andesite_alloy_sheets"
+      }
+    }
+  ]
+}

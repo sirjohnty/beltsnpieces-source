@@ -1,0 +1,17 @@
+{
+  "block.bitsnbelts.reinforced_pulley": "Reinforced Belt Pulley",
+  "block.bitsnbelts.reinforced_belt_span": "Reinforced Belt",
+  "item.bitsnbelts.incomplete_reinforced_belt": "Incomplete Reinforced Belt",
+  "item.bitsnbelts.reinforced_belt": "Reinforced Belt",
+  "bitsnbelts.config.beltQuality": "Belt Quality",
+  "bitsnbelts.config.beltQuality.tooltip": "How detailed the curves for reinforced belts are",
+  "bitsnbelts.config.reinforcedBelts": "Reinforced Belts",
+  "bitsnbelts.configuration.section.bitsnbelts.reinforced.belts.toml": "Reinforced Belts",
+  "bitsnbelts.configuration.section.bitsnbelts.reinforced.belts.toml.title": "Reinforced Belts",
+  "bitsnbelts.config.maximumBeltLength": "Maximum Belt Length",
+  "bitsnbelts.config.maximumBeltLength.tooltip": "Set the maximum length a reinforced belt can be. Behaves similarly to regular belts",
+  "bitsnbelts.config.beltAdjustmentLimit": "Belt adjustment limit",
+  "bitsnbelts.config.beltAdjustmentLimit.tooltip": "How many times a reinforced belt can be adjusted with the wrench before blocking new adjustments",
+  "bitsnbelts.config.chainConveyorCutoffAngle": "Chain conveyor cutoff angle",
+  "bitsnbelts.config.chainConveyorCutoffAngle.tooltip": "How steep a chain conveyor can get before it cuts off and you can't place it"
+}

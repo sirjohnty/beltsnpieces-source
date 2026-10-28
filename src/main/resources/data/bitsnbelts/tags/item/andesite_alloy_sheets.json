@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "#c:plates/andesite_alloy",
+      "required": false
+    },
+    {
+      "id": "#c:sheets/andesite_alloy",
+      "required": false
+    }
+  ]
+}

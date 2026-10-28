@@ -1,0 +1,28 @@
+plugins {
+    id 'java-library'
+    id 'net.neoforged.moddev' version '2.0.107'
+}
+group = 'com.sirjohnty'
+version = '0.2.5-alpha'
+base { archivesName = 'create-bits-n-belts-1.21.1' }
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+repositories {
+    mavenCentral()
+    maven { url = 'https://maven.createmod.net' }
+    maven { url = 'https://maven.neoforged.net/releases' }
+}
+neoForge {
+    version = '21.1.219'
+    runs { client { client() }; server { server(); programArgument '--nogui' } }
+    mods { bitsnbelts { sourceSet sourceSets.main } }
+}
+dependencies { compileOnly fileTree(dir: 'libs', include: ['*.jar']) }
+tasks.named('processResources') {
+    def modVersion = project.version.toString()
+    inputs.property('modVersion', modVersion)
+    filesMatching('META-INF/neoforge.mods.toml') {
+        expand(modVersion: modVersion)
+    }
+}
+tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8'; options.compilerArgs += ['-proc:none'] }
+

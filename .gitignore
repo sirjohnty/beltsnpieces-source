@@ -1,0 +1,30 @@
+# Gradle caches and generated output
+.gradle/
+build/
+out/
+bin/
+
+# IDE and local agent settings
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+.vscode/
+.agents/
+.codex/
+
+# Development game data and external dependencies
+run/
+libs/*.jar
+*.log
+
+# Local secrets and operating system files
+.env
+.env.*
+!.env.example
+*.jks
+*.keystore
+Thumbs.db
+Desktop.ini
+.DS_Store
