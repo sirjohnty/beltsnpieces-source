@@ -1,6 +1,6 @@
-# Create: Bits n Belts
+Create: Bits n Belts
 
-A Minecraft Create addon with features and quality of life changes focused on belts and logistics.
+Adds reinforced belts and other items focused on logistics, amongst other quality of life changes
 
 ## Development requirements
 
