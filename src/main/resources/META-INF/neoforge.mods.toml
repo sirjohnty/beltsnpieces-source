@@ -7,9 +7,7 @@ version="${modVersion}"
 displayName="Create: Bits n Belts"
 logoFile="logo.png"
 authors="SirJohnty"
-description='''Adds new features and quality of life changes mainly revolving around belts and logistics.
-
-AI was used during the creation of this mod.'''
+description='''Adds reinforced belts and other items focused on logistics, amongst other quality of life changes'''
 [[mixins]]
 config="bitsnbelts.mixins.json"
 [[dependencies.bitsnbelts]]
