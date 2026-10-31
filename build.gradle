@@ -3,8 +3,8 @@ plugins {
     id 'net.neoforged.moddev' version '2.0.107'
 }
 group = 'com.sirjohnty'
-version = '0.2.5-alpha'
-base { archivesName = 'create-bits-n-belts-1.21.1' }
+version = '0.6.0-beta'
+base { archivesName = 'beltsnpieces' }
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 repositories {
     mavenCentral()
@@ -12,11 +12,44 @@ repositories {
     maven { url = 'https://maven.neoforged.net/releases' }
 }
 neoForge {
-    version = '21.1.219'
-    runs { client { client() }; server { server(); programArgument '--nogui' } }
-    mods { bitsnbelts { sourceSet sourceSets.main } }
+    version = '21.1.259'
+    runs {
+        client {
+            client()
+            if (file('run/clearw-on-next-testit.once').isFile() && !providers.gradleProperty('skipQueuedClear').isPresent()) {
+                systemProperty 'beltsnpieces.clearOnce', 'true'
+            }
+            // Minecraft Quick Play opens the existing development save directly.
+            if (file('run/saves/New World/level.dat').isFile()) {
+                programArgument '--quickPlaySingleplayer'
+                programArgument 'New World'
+            }
+        }
+        server { server(); programArgument '--nogui' }
+        // Bootstrap-only server check: does not accept an EULA or create a save.
+        readinessServer {
+            server()
+            gameDirectory = file('build/readiness/server')
+            programArgument '--initSettings'
+            programArgument '--nogui'
+        }
+        minimalClient {
+            client()
+            gameDirectory = file('build/readiness/minimal-client')
+        }
+    }
+    mods { beltsnpieces { sourceSet sourceSets.main } }
 }
-dependencies { compileOnly fileTree(dir: 'libs', include: ['*.jar']) }
+dependencies {
+    compileOnly fileTree(dir: 'dev-libs', include: ['createtransmission-*.jar'])
+    compileOnly fileTree(dir: 'libs', include: ['*.jar'])
+    runtimeOnly fileTree(dir: 'libs', include: ['*.jar'])
+    // Optional integration mods for the isolated development client.
+    // Sodium's bootstrap/nested-mod JAR must be discovered from run/mods.
+    if (!providers.gradleProperty('minimalRuntime').isPresent()) {
+        runtimeOnly fileTree(dir: 'dev-libs', include: ['*.jar'], exclude: ['sodium-neoforge-*.jar'])
+    }
+}
 tasks.named('processResources') {
     def modVersion = project.version.toString()
     inputs.property('modVersion', modVersion)
@@ -25,4 +58,172 @@ tasks.named('processResources') {
     }
 }
 tasks.withType(JavaCompile).configureEach { options.encoding = 'UTF-8'; options.compilerArgs += ['-proc:none'] }
+
+tasks.named('jar', Jar) {
+    archiveFileName = "beltsnpieces-${project.version}-1.21.1-neoforge.jar"
+    exclude 'com/sirjohnty/beltsnpieces/client/Development*.class'
+}
+
+tasks.register('verifyLocalDependencies') {
+    group = 'verification'
+    description = 'Reject unexpected core libraries and duplicate mod IDs in local dependency folders.'
+    doLast {
+        def expected = ['create-1.21.1-6.0.10.jar', 'flywheel-neoforge-1.21.1-1.0.6.jar',
+                        'ponder-neoforge-1.0.82+mc1.21.1.jar', 'Registrate-MC1.21-1.3.0+67.jar'] as Set
+        def actual = fileTree('libs') { include '*.jar' }.files.collect { it.name } as Set
+        if (actual != expected) throw new GradleException("Core dependency mismatch. Expected ${expected}; found ${actual}")
+        def ids = [:]
+        (fileTree('libs') { include '*.jar' }.files + fileTree('dev-libs') { include '*.jar' }.files).each { jar ->
+            def zip = new java.util.zip.ZipFile(jar)
+            try {
+                def entry = zip.getEntry('META-INF/neoforge.mods.toml') ?: zip.getEntry('META-INF/mods.toml')
+                if (entry != null) {
+                    def metadata = zip.getInputStream(entry).withCloseable { it.getText('UTF-8') }
+                    def sections = metadata.split(/(?m)^\s*\[\[mods\]\]\s*$/)
+                    sections.drop(1).each { section ->
+                        def matcher = (section.split(/(?m)^\s*\[/, 2)[0] =~ /(?m)^\s*modId\s*=\s*['"]([^'"]+)['"]/)
+                        if (matcher.find()) {
+                            def id = matcher.group(1)
+                            if (ids.containsKey(id)) throw new GradleException("Duplicate mod ${id}: ${ids[id]} and ${jar.name}")
+                            ids[id] = jar.name
+                        }
+                    }
+                }
+            } finally { zip.close() }
+        }
+        logger.lifecycle("Verified ${actual.size()} pinned core libraries; ${ids.size()} unique declared local mod IDs")
+    }
+}
+
+tasks.named('check') { dependsOn 'verifyLocalDependencies' }
+
+tasks.register('verifyModIdentity') {
+    group = 'verification'
+    description = 'Reject predecessor branding in active mod sources and resource paths.'
+    doLast {
+        def predecessor = ~('(?i)' + ['bits', 'n', 'belts'].join('[\\s_-]*'))
+        def violations = []
+        fileTree('src').files.each { source ->
+            def relative = relativePath(source)
+            if (predecessor.matcher(relative).find()) violations.add(relative)
+            if (source.name ==~ /.*\.(java|json|toml|mcmeta|properties)$/) {
+                if (predecessor.matcher(source.getText('UTF-8')).find()) violations.add(relative)
+            }
+        }
+        if (!violations.empty) throw new GradleException("Predecessor branding found: ${violations.unique()}")
+        logger.lifecycle('Verified Create: Belts n Pieces source and resource identity')
+    }
+}
+
+tasks.named('check') { dependsOn 'verifyModIdentity' }
+
+sourceSets.test.java {
+    srcDir 'tools'
+    exclude 'GenerateReinforcedBeltPonder.java'
+}
+sourceSets.test.compileClasspath += sourceSets.main.compileClasspath
+sourceSets.test.runtimeClasspath += sourceSets.main.runtimeClasspath
+tasks.register('checkCasingGeometry', JavaExec) {
+    group = 'verification'
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'CasingGeometryCheck'
+    javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(21) }
+}
+tasks.register('checkReadinessGeometry', JavaExec) {
+    group = 'verification'
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = 'com.sirjohnty.beltsnpieces.client.ReadinessGeometryCheck'
+    javaLauncher = javaToolchains.launcherFor { languageVersion = JavaLanguageVersion.of(21) }
+}
+tasks.named('check') { dependsOn 'checkCasingGeometry', 'checkReadinessGeometry' }
+
+tasks.register('verifyPonderTranslations') {
+    group = 'verification'
+    description = 'Reject missing or stale production Ponder captions and titles.'
+    dependsOn tasks.named('processResources')
+    doLast {
+        def lang = new groovy.json.JsonSlurper().parse(
+            file("${layout.buildDirectory.get()}/resources/main/assets/beltsnpieces/lang/en_us.json"), 'UTF-8')
+        def scenes = [
+            ['ReinforcedBeltScenes', 'placement', 'reinforced_belt_placement', 'Placing Reinforced Belts'],
+            ['ReinforcedBeltScenes', 'adjustments', 'reinforced_belt_adjustments', 'Adjusting and Driving Reinforced Belts'],
+            ['ReinforcedBeltScenes', 'transport', 'reinforced_belt_transport', 'Transport, Casing and Removal'],
+            ['BeltVoidScenes', 'passage', 'belt_void_passage', 'Clearing Belt Overflow']
+        ]
+        int captions = 0
+        scenes.each { spec ->
+            def source = file("src/main/java/com/sirjohnty/beltsnpieces/client/${spec[0]}.java").getText('UTF-8')
+            def method = (source =~ /(?s)public static void ${spec[1]}\(.*?(?=\n    (?:public|private) static|\n\})/)
+            if (!method.find()) throw new GradleException("Missing Ponder method: ${spec[1]}")
+            def expected = [header: spec[3]]
+            int index = 0
+            (method.group() =~ /\.text\("([^"\r\n]*)"\)/).each { match ->
+                expected["text_${++index}".toString()] = match[1]
+            }
+            if (index == 0) throw new GradleException("No captions checked for ${spec[2]}")
+            expected.each { suffix, text ->
+                def key = "beltsnpieces.ponder.${spec[2]}.${suffix}".toString()
+                if (lang[key] != text) throw new GradleException("Missing or stale Ponder translation: ${key}")
+            }
+            captions += index
+        }
+        logger.lifecycle("Verified 4 production Ponder titles and ${captions} captions")
+    }
+}
+tasks.named('check') { dependsOn 'verifyPonderTranslations' }
+
+tasks.register('verifyReleaseArtifact') {
+    group = 'verification'
+    description = 'Verify release naming, namespace layout, and exclusion of development helpers.'
+    dependsOn tasks.named('jar')
+    doLast {
+        def artifact = tasks.named('jar', Jar).get().archiveFile.get().asFile
+        def expectedName = "beltsnpieces-${project.version}-1.21.1-neoforge.jar"
+        if (artifact.name != expectedName) throw new GradleException("Unexpected release filename: ${artifact.name}")
+        def zip = new java.util.zip.ZipFile(artifact)
+        try {
+            def names = zip.entries().toList().findAll { !it.directory }.collect { it.name }
+            def invalid = names.findAll { name ->
+                (name.startsWith('com/sirjohnty/') && !name.startsWith('com/sirjohnty/beltsnpieces/')) ||
+                (name.startsWith('assets/') && !name.startsWith('assets/beltsnpieces/') && !name.startsWith('assets/minecraft/')) ||
+                (name.startsWith('data/') && !name.startsWith('data/beltsnpieces/') && !name.startsWith('data/minecraft/')) ||
+                (name.startsWith('com/sirjohnty/beltsnpieces/client/Development'))
+            }
+            if (!invalid.empty) throw new GradleException("Unexpected release entries: ${invalid}")
+            names.findAll { it.endsWith('.json') }.each { name ->
+                zip.getInputStream(zip.getEntry(name)).withCloseable { stream ->
+                    new groovy.json.JsonSlurper().parse(stream, 'UTF-8')
+                }
+            }
+            def expectedItems = ['reinforced_belt.json', 'incomplete_reinforced_belt.json', 'belt_void.json'] as Set
+            def itemModels = names.findAll { it.startsWith('assets/beltsnpieces/models/item/') }
+                .collect { it.substring(it.lastIndexOf('/') + 1) } as Set
+            if (itemModels != expectedItems) throw new GradleException("Unexpected item models: ${itemModels}")
+            def metadata = zip.getInputStream(zip.getEntry('META-INF/neoforge.mods.toml')).withCloseable { it.getText('UTF-8') }
+            if (!metadata.contains('modId="beltsnpieces"') || !metadata.contains("version=\"${project.version}\"") ||
+                !metadata.contains('displayName="Create: Belts n Pieces"') || metadata.contains('${modVersion}'))
+                throw new GradleException('Release metadata does not match the current mod identity/version')
+            ['beltsnpieces.mixins.json', 'assets/beltsnpieces/ponder/reinforced_belt.nbt', 'logo.png'].each { required ->
+                if (!names.contains(required)) throw new GradleException("Missing release resource: ${required}")
+            }
+            logger.lifecycle("Verified release artifact: ${artifact.name}")
+        } finally { zip.close() }
+    }
+}
+tasks.named('build') { dependsOn 'verifyReleaseArtifact' }
+
+// /restart launches independently of the old JVM's IntelliJ debugger session.
+tasks.named('runClient') {
+    if (providers.gradleProperty('devRestartDebug').isPresent()) {
+        debugOptions {
+            enabled = true
+            host = '127.0.0.1'
+            port = 5005
+            server = true
+            suspend = false
+        }
+    }
+}
 

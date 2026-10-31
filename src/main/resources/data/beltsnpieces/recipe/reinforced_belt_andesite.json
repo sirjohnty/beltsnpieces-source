@@ -1,0 +1,72 @@
+{
+    "type":  "create:sequenced_assembly",
+    "ingredient":  {
+                       "item":  "create:belt_connector"
+                   },
+    "loops":  1,
+    "results":  [
+                    {
+                        "id":  "beltsnpieces:reinforced_belt",
+                        "count":  1
+                    }
+                ],
+    "sequence":  [
+                     {
+                         "type":  "create:deploying",
+                         "ingredients":  [
+                                             {
+                                                 "item":  "beltsnpieces:incomplete_reinforced_belt"
+                                             },
+                                             {
+                                                 "item":  "create:brass_nugget"
+                                             }
+                                         ],
+                         "results":  [
+                                         {
+                                             "id":  "beltsnpieces:incomplete_reinforced_belt"
+                                         }
+                                     ]
+                     },
+                     {
+                         "type":  "create:deploying",
+                         "ingredients":  [
+                                             {
+                                                 "item":  "beltsnpieces:incomplete_reinforced_belt"
+                                             },
+                                             {
+                                                 "tag":  "beltsnpieces:andesite_alloy_sheets"
+                                             }
+                                         ],
+                         "results":  [
+                                         {
+                                             "id":  "beltsnpieces:incomplete_reinforced_belt"
+                                         }
+                                     ]
+                     },
+                     {
+                         "type":  "create:pressing",
+                         "ingredients":  [
+                                             {
+                                                 "item":  "beltsnpieces:incomplete_reinforced_belt"
+                                             }
+                                         ],
+                         "results":  [
+                                         {
+                                             "id":  "beltsnpieces:incomplete_reinforced_belt"
+                                         }
+                                     ]
+                     }
+                 ],
+    "transitional_item":  {
+                              "id":  "beltsnpieces:incomplete_reinforced_belt"
+                          },
+    "neoforge:conditions":  [
+                                {
+                                    "type":  "neoforge:not",
+                                    "value":  {
+                                                  "type":  "neoforge:tag_empty",
+                                                  "tag":  "beltsnpieces:andesite_alloy_sheets"
+                                              }
+                                }
+                            ]
+}

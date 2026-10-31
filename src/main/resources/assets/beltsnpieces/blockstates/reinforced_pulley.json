@@ -1,0 +1,15 @@
+{
+  "variants": {
+    "axis=z": {
+      "model": "beltsnpieces:block/reinforced_pulley"
+    },
+    "axis=x": {
+      "model": "beltsnpieces:block/reinforced_pulley",
+      "y": 90
+    },
+    "axis=y": {
+      "model": "beltsnpieces:block/reinforced_pulley",
+      "x": 90
+    }
+  }
+}

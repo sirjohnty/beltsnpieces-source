@@ -1,5 +1,0 @@
-{
-  "parent": "minecraft:block/block",
-  "textures": { "particle": "bitsnbelts:block/reinforced_belt" },
-  "elements": []
-}

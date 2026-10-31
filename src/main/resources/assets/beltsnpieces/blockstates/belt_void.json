@@ -1,0 +1,1 @@
+{"variants":{"facing=north":{"model":"beltsnpieces:block/belt_void"},"facing=east":{"model":"beltsnpieces:block/belt_void","y":90},"facing=south":{"model":"beltsnpieces:block/belt_void","y":180},"facing=west":{"model":"beltsnpieces:block/belt_void","y":270}}}

@@ -17,6 +17,7 @@ bin/
 # Development game data and external dependencies
 run/
 libs/*.jar
+dev-libs/*.jar
 *.log
 
 # Local secrets and operating system files

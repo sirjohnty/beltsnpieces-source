@@ -1,0 +1,199 @@
+{
+    "parent":  "minecraft:block/block",
+    "textures":  {
+                     "particle":  "create:block/brass_block",
+                     "atlas":  "beltsnpieces:block/belt_void",
+                     "brass":  "create:block/brass_block"
+                 },
+    "elements":  [
+                     {
+                         "name":  "flat_roof",
+                         "from":  [
+                                      1,
+                                      7.75,
+                                      1
+                                  ],
+                         "to":  [
+                                    15,
+                                    9,
+                                    15
+                                ],
+                         "faces":  {
+                                       "up":  {
+                                                  "texture":  "#brass",
+                                                  "uv":  [
+                                                             0,
+                                                             0,
+                                                             16,
+                                                             16
+                                                         ]
+                                              },
+                                       "down":  {
+                                                    "texture":  "#brass",
+                                                    "uv":  [
+                                                               0,
+                                                               0,
+                                                               16,
+                                                               16
+                                                           ]
+                                                },
+                                       "north":  {
+                                                     "texture":  "#brass",
+                                                     "uv":  [
+                                                                0,
+                                                                0,
+                                                                16,
+                                                                1.6666666666666667
+                                                            ]
+                                                 },
+                                       "south":  {
+                                                     "texture":  "#brass",
+                                                     "uv":  [
+                                                                0,
+                                                                0,
+                                                                16,
+                                                                1.6666666666666667
+                                                            ]
+                                                 },
+                                       "west":  {
+                                                    "texture":  "#brass",
+                                                    "uv":  [
+                                                               0,
+                                                               0,
+                                                               16,
+                                                               1.6666666666666667
+                                                           ]
+                                                },
+                                       "east":  {
+                                                    "texture":  "#brass",
+                                                    "uv":  [
+                                                               0,
+                                                               0,
+                                                               16,
+                                                               1.6666666666666667
+                                                           ]
+                                                }
+                                   }
+                     },
+                     {
+                         "name":  "left_wall",
+                         "from":  [
+                                      1,
+                                      -3,
+                                      1
+                                  ],
+                         "to":  [
+                                    2.25,
+                                    7.75,
+                                    15
+                                ],
+                         "faces":  {
+                                       "down":  {
+                                                    "texture":  "#brass",
+                                                    "uv":  [
+                                                               0,
+                                                               14.571428571428571,
+                                                               16,
+                                                               16
+                                                           ]
+                                                },
+                                       "north":  {
+                                                     "texture":  "#brass",
+                                                     "uv":  [
+                                                                0,
+                                                                1.6666666666666667,
+                                                                1.4285714285714286,
+                                                                16
+                                                            ]
+                                                 },
+                                       "south":  {
+                                                     "texture":  "#brass",
+                                                     "uv":  [
+                                                                14.571428571428571,
+                                                                1.6666666666666667,
+                                                                16,
+                                                                16
+                                                            ]
+                                                 },
+                                       "west":  {
+                                                    "texture":  "#brass",
+                                                    "uv":  [
+                                                               0,
+                                                               1.6666666666666667,
+                                                               16,
+                                                               16
+                                                           ]
+                                                },
+                                       "east":  {
+                                                    "texture":  "#brass",
+                                                    "uv":  [
+                                                               0,
+                                                               1.6666666666666667,
+                                                               16,
+                                                               16
+                                                           ]
+                                                }
+                                   }
+                     },
+                     {
+                         "name":  "right_wall",
+                         "from":  [
+                                      13.75,
+                                      -3,
+                                      1
+                                  ],
+                         "to":  [
+                                    15,
+                                    7.75,
+                                    15
+                                ],
+                         "faces":  {
+                                       "down":  {
+                                                    "texture":  "#brass",
+                                                    "uv":  [
+                                                               0,
+                                                               14.571428571428571,
+                                                               16,
+                                                               16
+                                                           ]
+                                                },
+                                       "north":  {
+                                                     "texture":  "#brass",
+                                                     "uv":  [
+                                                                14.571428571428571,
+                                                                1.6666666666666667,
+                                                                16,
+                                                                16
+                                                            ]
+                                                 },
+                                       "south":  {
+                                                     "texture":  "#brass",
+                                                     "uv":  [
+                                                                0,
+                                                                1.6666666666666667,
+                                                                1.4285714285714286,
+                                                                16
+                                                            ]
+                                                 },
+                                       "west":  {
+                                                    "texture":  "#brass",
+                                                    "uv":  [
+                                                               0,
+                                                               1.6666666666666667,
+                                                               16,
+                                                               16
+                                                           ]
+                                                },
+                                       "east":  {
+                                                    "texture":  "#brass",
+                                                    "uv":  [
+                                                               0,
+                                                               1.6666666666666667,
+                                                               16,
+                                                               16
+                                                           ]
+                                                }
+                                   }
+                     }
+                 ]
+}

@@ -1,5 +1,5 @@
 {
   "sources": [
-    { "type": "bitsnbelts:steel_belt_casing" }
+    { "type": "beltsnpieces:steel_belt_casing" }
   ]
 }

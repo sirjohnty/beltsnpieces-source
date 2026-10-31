@@ -2,35 +2,35 @@ modLoader="javafml"
 loaderVersion="[4,)"
 license="MIT"
 [[mods]]
-modId="bitsnbelts"
+modId="beltsnpieces"
 version="${modVersion}"
-displayName="Create: Bits n Belts"
+displayName="Create: Belts n Pieces"
 logoFile="logo.png"
 authors="SirJohnty"
 description='''Adds reinforced belts and other items focused on logistics, amongst other quality of life changes'''
 [[mixins]]
-config="bitsnbelts.mixins.json"
-[[dependencies.bitsnbelts]]
+config="beltsnpieces.mixins.json"
+[[dependencies.beltsnpieces]]
 modId="neoforge"
 type="required"
 versionRange="[21.1.206,21.2)"
 ordering="NONE"
 side="BOTH"
-[[dependencies.bitsnbelts]]
+[[dependencies.beltsnpieces]]
 modId="minecraft"
 type="required"
 versionRange="[1.21.1]"
 ordering="NONE"
 side="BOTH"
-[[dependencies.bitsnbelts]]
+[[dependencies.beltsnpieces]]
 modId="create"
 type="required"
 versionRange="[6.0.9,6.0.11)"
 ordering="AFTER"
 side="BOTH"
-[[dependencies.bitsnbelts]]
+[[dependencies.beltsnpieces]]
 modId="unlimited_chain_conveyors"
 type="incompatible"
 versionRange="[0,)"
-reason="Create: Bits n Belts includes this feature. Remove the old Unlimited Chain Conveyors JAR."
+reason="Create: Belts n Pieces includes this feature. Remove the old Unlimited Chain Conveyors JAR."
 side="BOTH"

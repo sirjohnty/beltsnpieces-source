@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1024" height="1024" viewBox="0 0 256 256">
+<image width="256" height="256" image-rendering="pixelated" href="src/main/resources/assets/beltsnpieces/textures/block/belt_void.png"/>
+<rect x="0.3" y="0.3" width="63.4" height="63.4" fill="none" stroke="white" stroke-width=".5"/>
+<rect x="1" y="1" width="62" height="9" fill="black" opacity=".85"/>
+<text x="2" y="7" font-family="sans-serif" font-size="3.4" fill="white">Left side panel</text>
+<rect x="64.3" y="0.3" width="63.4" height="63.4" fill="none" stroke="white" stroke-width=".5"/>
+<rect x="65" y="1" width="62" height="9" fill="black" opacity=".85"/>
+<text x="66" y="7" font-family="sans-serif" font-size="3.4" fill="white">Right side panel</text>
+<rect x="128.3" y="0.3" width="63.4" height="63.4" fill="none" stroke="white" stroke-width=".5"/>
+<rect x="129" y="1" width="62" height="9" fill="black" opacity=".85"/>
+<text x="130" y="7" font-family="sans-serif" font-size="3.4" fill="white">Roof exterior</text>
+<rect x="192.3" y="0.3" width="63.4" height="63.4" fill="none" stroke="white" stroke-width=".5"/>
+<rect x="193" y="1" width="62" height="9" fill="black" opacity=".85"/>
+<text x="194" y="7" font-family="sans-serif" font-size="3.4" fill="white">Roof interior</text>
+<rect x="0.3" y="64.3" width="63.4" height="63.4" fill="none" stroke="white" stroke-width=".5"/>
+<rect x="1" y="65" width="62" height="9" fill="black" opacity=".85"/>
+<text x="2" y="71" font-family="sans-serif" font-size="3.4" fill="white">Intake header</text>
+<rect x="64.3" y="64.3" width="63.4" height="63.4" fill="none" stroke="white" stroke-width=".5"/>
+<rect x="65" y="65" width="62" height="9" fill="black" opacity=".85"/>
+<text x="66" y="71" font-family="sans-serif" font-size="3.4" fill="white">Exit header</text>
+<rect x="128.3" y="64.3" width="63.4" height="63.4" fill="none" stroke="white" stroke-width=".5"/>
+<rect x="129" y="65" width="62" height="9" fill="black" opacity=".85"/>
+<text x="130" y="71" font-family="sans-serif" font-size="3.4" fill="white">Intake wall edges</text>
+<rect x="192.3" y="64.3" width="63.4" height="63.4" fill="none" stroke="white" stroke-width=".5"/>
+<rect x="193" y="65" width="62" height="9" fill="black" opacity=".85"/>
+<text x="194" y="71" font-family="sans-serif" font-size="3.4" fill="white">Exit wall edges</text>
+<rect x="0.3" y="128.3" width="63.4" height="63.4" fill="none" stroke="white" stroke-width=".5"/>
+<rect x="1" y="129" width="62" height="9" fill="black" opacity=".85"/>
+<text x="2" y="135" font-family="sans-serif" font-size="3.4" fill="white">Wall undersides</text>
+<rect x="64.3" y="128.3" width="63.4" height="63.4" fill="none" stroke="white" stroke-width=".5"/>
+<rect x="65" y="129" width="62" height="9" fill="black" opacity=".85"/>
+<text x="66" y="135" font-family="sans-serif" font-size="3.4" fill="white">Reserved (unused)</text>
+<rect x="128.3" y="128.3" width="63.4" height="63.4" fill="none" stroke="white" stroke-width=".5"/>
+<rect x="129" y="129" width="62" height="9" fill="black" opacity=".85"/>
+<text x="130" y="135" font-family="sans-serif" font-size="3.4" fill="white">Reserved (unused)</text>
+<rect x="192.3" y="128.3" width="63.4" height="63.4" fill="none" stroke="white" stroke-width=".5"/>
+<rect x="193" y="129" width="62" height="9" fill="black" opacity=".85"/>
+<text x="194" y="135" font-family="sans-serif" font-size="3.4" fill="white">Edges and trim</text>
+<rect x="0.3" y="192.3" width="63.4" height="63.4" fill="none" stroke="white" stroke-width=".5"/>
+<rect x="1" y="193" width="62" height="9" fill="black" opacity=".85"/>
+<text x="2" y="199" font-family="sans-serif" font-size="3.4" fill="white">Reserved (unused)</text>
+<rect x="64.3" y="192.3" width="63.4" height="63.4" fill="none" stroke="white" stroke-width=".5"/>
+<rect x="65" y="193" width="62" height="9" fill="black" opacity=".85"/>
+<text x="66" y="199" font-family="sans-serif" font-size="3.4" fill="white">Reserved (unused)</text>
+<rect x="128.3" y="192.3" width="63.4" height="63.4" fill="none" stroke="white" stroke-width=".5"/>
+<rect x="129" y="193" width="62" height="9" fill="black" opacity=".85"/>
+<text x="130" y="199" font-family="sans-serif" font-size="3.4" fill="white">Reserved (unused)</text>
+<rect x="192.3" y="192.3" width="63.4" height="63.4" fill="none" stroke="white" stroke-width=".5"/>
+<rect x="193" y="193" width="62" height="9" fill="black" opacity=".85"/>
+<text x="194" y="199" font-family="sans-serif" font-size="3.4" fill="white">Reserved (unused)</text>
+</svg>

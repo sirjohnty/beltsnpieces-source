@@ -1,0 +1,768 @@
+{
+    "parent":  "minecraft:block/block",
+    "textures":  {
+                     "particle":  "create:block/brass_block",
+                     "atlas":  "beltsnpieces:block/belt_void",
+                     "flap":  "create:block/funnel/brass_funnel",
+                     "brass":  "create:block/brass_block"
+                 },
+    "elements":  [
+                     {
+                         "name":  "flat_roof",
+                         "from":  [
+                                      1,
+                                      12.75,
+                                      1
+                                  ],
+                         "to":  [
+                                    15,
+                                    14,
+                                    15
+                                ],
+                         "faces":  {
+                                       "up":  {
+                                                  "texture":  "#brass",
+                                                  "uv":  [
+                                                             0,
+                                                             0,
+                                                             16,
+                                                             16
+                                                         ]
+                                              },
+                                       "down":  {
+                                                    "texture":  "#brass",
+                                                    "uv":  [
+                                                               0,
+                                                               0,
+                                                               16,
+                                                               16
+                                                           ]
+                                                },
+                                       "north":  {
+                                                     "texture":  "#brass",
+                                                     "uv":  [
+                                                                0,
+                                                                0,
+                                                                16,
+                                                                1.6666666666666667
+                                                            ]
+                                                 },
+                                       "south":  {
+                                                     "texture":  "#brass",
+                                                     "uv":  [
+                                                                0,
+                                                                0,
+                                                                16,
+                                                                1.6666666666666667
+                                                            ]
+                                                 },
+                                       "west":  {
+                                                    "texture":  "#brass",
+                                                    "uv":  [
+                                                               0,
+                                                               0,
+                                                               16,
+                                                               1.6666666666666667
+                                                           ]
+                                                },
+                                       "east":  {
+                                                    "texture":  "#brass",
+                                                    "uv":  [
+                                                               0,
+                                                               0,
+                                                               16,
+                                                               1.6666666666666667
+                                                           ]
+                                                }
+                                   }
+                     },
+                     {
+                         "name":  "left_wall",
+                         "from":  [
+                                      1,
+                                      2,
+                                      1
+                                  ],
+                         "to":  [
+                                    2.25,
+                                    12.75,
+                                    15
+                                ],
+                         "faces":  {
+                                       "down":  {
+                                                    "texture":  "#brass",
+                                                    "uv":  [
+                                                               0,
+                                                               14.571428571428571,
+                                                               16,
+                                                               16
+                                                           ]
+                                                },
+                                       "north":  {
+                                                     "texture":  "#brass",
+                                                     "uv":  [
+                                                                0,
+                                                                1.6666666666666667,
+                                                                1.4285714285714286,
+                                                                16
+                                                            ]
+                                                 },
+                                       "south":  {
+                                                     "texture":  "#brass",
+                                                     "uv":  [
+                                                                14.571428571428571,
+                                                                1.6666666666666667,
+                                                                16,
+                                                                16
+                                                            ]
+                                                 },
+                                       "west":  {
+                                                    "texture":  "#brass",
+                                                    "uv":  [
+                                                               0,
+                                                               1.6666666666666667,
+                                                               16,
+                                                               16
+                                                           ]
+                                                },
+                                       "east":  {
+                                                    "texture":  "#brass",
+                                                    "uv":  [
+                                                               0,
+                                                               1.6666666666666667,
+                                                               16,
+                                                               16
+                                                           ]
+                                                }
+                                   }
+                     },
+                     {
+                         "name":  "right_wall",
+                         "from":  [
+                                      13.75,
+                                      2,
+                                      1
+                                  ],
+                         "to":  [
+                                    15,
+                                    12.75,
+                                    15
+                                ],
+                         "faces":  {
+                                       "down":  {
+                                                    "texture":  "#brass",
+                                                    "uv":  [
+                                                               0,
+                                                               14.571428571428571,
+                                                               16,
+                                                               16
+                                                           ]
+                                                },
+                                       "north":  {
+                                                     "texture":  "#brass",
+                                                     "uv":  [
+                                                                14.571428571428571,
+                                                                1.6666666666666667,
+                                                                16,
+                                                                16
+                                                            ]
+                                                 },
+                                       "south":  {
+                                                     "texture":  "#brass",
+                                                     "uv":  [
+                                                                0,
+                                                                1.6666666666666667,
+                                                                1.4285714285714286,
+                                                                16
+                                                            ]
+                                                 },
+                                       "west":  {
+                                                    "texture":  "#brass",
+                                                    "uv":  [
+                                                               0,
+                                                               1.6666666666666667,
+                                                               16,
+                                                               16
+                                                           ]
+                                                },
+                                       "east":  {
+                                                    "texture":  "#brass",
+                                                    "uv":  [
+                                                               0,
+                                                               1.6666666666666667,
+                                                               16,
+                                                               16
+                                                           ]
+                                                }
+                                   }
+                     },
+                     {
+                         "name":  "curtain_0_0",
+                         "from":  [
+                                      2.5,
+                                      2,
+                                      1.75
+                                  ],
+                         "to":  [
+                                    5.1,
+                                    13,
+                                    2.45
+                                ],
+                         "faces":  {
+                                       "north":  {
+                                                     "uv":  [
+                                                                6,
+                                                                9.5,
+                                                                7.5,
+                                                                14.5
+                                                            ],
+                                                     "texture":  "#flap"
+                                                 },
+                                       "east":  {
+                                                    "uv":  [
+                                                               6,
+                                                               9.5,
+                                                               6.5,
+                                                               14.5
+                                                           ],
+                                                    "texture":  "#flap"
+                                                },
+                                       "south":  {
+                                                     "uv":  [
+                                                                7.5,
+                                                                9.5,
+                                                                6,
+                                                                14.5
+                                                            ],
+                                                     "texture":  "#flap"
+                                                 },
+                                       "west":  {
+                                                    "uv":  [
+                                                               7,
+                                                               9.5,
+                                                               7.5,
+                                                               14.5
+                                                           ],
+                                                    "texture":  "#flap"
+                                                },
+                                       "up":  {
+                                                  "uv":  [
+                                                             6,
+                                                             8,
+                                                             7.5,
+                                                             8.5
+                                                         ],
+                                                  "rotation":  180,
+                                                  "texture":  "#flap"
+                                              },
+                                       "down":  {
+                                                    "uv":  [
+                                                               6,
+                                                               14,
+                                                               7.5,
+                                                               14.5
+                                                           ],
+                                                    "rotation":  180,
+                                                    "texture":  "#flap"
+                                                }
+                                   }
+                     },
+                     {
+                         "name":  "curtain_0_1",
+                         "from":  [
+                                      5.3,
+                                      2,
+                                      1.75
+                                  ],
+                         "to":  [
+                                    7.9,
+                                    13,
+                                    2.45
+                                ],
+                         "faces":  {
+                                       "north":  {
+                                                     "uv":  [
+                                                                6,
+                                                                9.5,
+                                                                7.5,
+                                                                14.5
+                                                            ],
+                                                     "texture":  "#flap"
+                                                 },
+                                       "east":  {
+                                                    "uv":  [
+                                                               6,
+                                                               9.5,
+                                                               6.5,
+                                                               14.5
+                                                           ],
+                                                    "texture":  "#flap"
+                                                },
+                                       "south":  {
+                                                     "uv":  [
+                                                                7.5,
+                                                                9.5,
+                                                                6,
+                                                                14.5
+                                                            ],
+                                                     "texture":  "#flap"
+                                                 },
+                                       "west":  {
+                                                    "uv":  [
+                                                               7,
+                                                               9.5,
+                                                               7.5,
+                                                               14.5
+                                                           ],
+                                                    "texture":  "#flap"
+                                                },
+                                       "up":  {
+                                                  "uv":  [
+                                                             6,
+                                                             8,
+                                                             7.5,
+                                                             8.5
+                                                         ],
+                                                  "rotation":  180,
+                                                  "texture":  "#flap"
+                                              },
+                                       "down":  {
+                                                    "uv":  [
+                                                               6,
+                                                               14,
+                                                               7.5,
+                                                               14.5
+                                                           ],
+                                                    "rotation":  180,
+                                                    "texture":  "#flap"
+                                                }
+                                   }
+                     },
+                     {
+                         "name":  "curtain_0_2",
+                         "from":  [
+                                      8.1,
+                                      2,
+                                      1.75
+                                  ],
+                         "to":  [
+                                    10.7,
+                                    13,
+                                    2.45
+                                ],
+                         "faces":  {
+                                       "north":  {
+                                                     "uv":  [
+                                                                6,
+                                                                9.5,
+                                                                7.5,
+                                                                14.5
+                                                            ],
+                                                     "texture":  "#flap"
+                                                 },
+                                       "east":  {
+                                                    "uv":  [
+                                                               6,
+                                                               9.5,
+                                                               6.5,
+                                                               14.5
+                                                           ],
+                                                    "texture":  "#flap"
+                                                },
+                                       "south":  {
+                                                     "uv":  [
+                                                                7.5,
+                                                                9.5,
+                                                                6,
+                                                                14.5
+                                                            ],
+                                                     "texture":  "#flap"
+                                                 },
+                                       "west":  {
+                                                    "uv":  [
+                                                               7,
+                                                               9.5,
+                                                               7.5,
+                                                               14.5
+                                                           ],
+                                                    "texture":  "#flap"
+                                                },
+                                       "up":  {
+                                                  "uv":  [
+                                                             6,
+                                                             8,
+                                                             7.5,
+                                                             8.5
+                                                         ],
+                                                  "rotation":  180,
+                                                  "texture":  "#flap"
+                                              },
+                                       "down":  {
+                                                    "uv":  [
+                                                               6,
+                                                               14,
+                                                               7.5,
+                                                               14.5
+                                                           ],
+                                                    "rotation":  180,
+                                                    "texture":  "#flap"
+                                                }
+                                   }
+                     },
+                     {
+                         "name":  "curtain_0_3",
+                         "from":  [
+                                      10.899999999999999,
+                                      2,
+                                      1.75
+                                  ],
+                         "to":  [
+                                    13.499999999999998,
+                                    13,
+                                    2.45
+                                ],
+                         "faces":  {
+                                       "north":  {
+                                                     "uv":  [
+                                                                6,
+                                                                9.5,
+                                                                7.5,
+                                                                14.5
+                                                            ],
+                                                     "texture":  "#flap"
+                                                 },
+                                       "east":  {
+                                                    "uv":  [
+                                                               6,
+                                                               9.5,
+                                                               6.5,
+                                                               14.5
+                                                           ],
+                                                    "texture":  "#flap"
+                                                },
+                                       "south":  {
+                                                     "uv":  [
+                                                                7.5,
+                                                                9.5,
+                                                                6,
+                                                                14.5
+                                                            ],
+                                                     "texture":  "#flap"
+                                                 },
+                                       "west":  {
+                                                    "uv":  [
+                                                               7,
+                                                               9.5,
+                                                               7.5,
+                                                               14.5
+                                                           ],
+                                                    "texture":  "#flap"
+                                                },
+                                       "up":  {
+                                                  "uv":  [
+                                                             6,
+                                                             8,
+                                                             7.5,
+                                                             8.5
+                                                         ],
+                                                  "rotation":  180,
+                                                  "texture":  "#flap"
+                                              },
+                                       "down":  {
+                                                    "uv":  [
+                                                               6,
+                                                               14,
+                                                               7.5,
+                                                               14.5
+                                                           ],
+                                                    "rotation":  180,
+                                                    "texture":  "#flap"
+                                                }
+                                   }
+                     },
+                     {
+                         "name":  "curtain_1_0",
+                         "from":  [
+                                      2.5,
+                                      2,
+                                      13.55
+                                  ],
+                         "to":  [
+                                    5.1,
+                                    13,
+                                    14.25
+                                ],
+                         "faces":  {
+                                       "north":  {
+                                                     "uv":  [
+                                                                6,
+                                                                9.5,
+                                                                7.5,
+                                                                14.5
+                                                            ],
+                                                     "texture":  "#flap"
+                                                 },
+                                       "east":  {
+                                                    "uv":  [
+                                                               6,
+                                                               9.5,
+                                                               6.5,
+                                                               14.5
+                                                           ],
+                                                    "texture":  "#flap"
+                                                },
+                                       "south":  {
+                                                     "uv":  [
+                                                                7.5,
+                                                                9.5,
+                                                                6,
+                                                                14.5
+                                                            ],
+                                                     "texture":  "#flap"
+                                                 },
+                                       "west":  {
+                                                    "uv":  [
+                                                               7,
+                                                               9.5,
+                                                               7.5,
+                                                               14.5
+                                                           ],
+                                                    "texture":  "#flap"
+                                                },
+                                       "up":  {
+                                                  "uv":  [
+                                                             6,
+                                                             8,
+                                                             7.5,
+                                                             8.5
+                                                         ],
+                                                  "rotation":  180,
+                                                  "texture":  "#flap"
+                                              },
+                                       "down":  {
+                                                    "uv":  [
+                                                               6,
+                                                               14,
+                                                               7.5,
+                                                               14.5
+                                                           ],
+                                                    "rotation":  180,
+                                                    "texture":  "#flap"
+                                                }
+                                   }
+                     },
+                     {
+                         "name":  "curtain_1_1",
+                         "from":  [
+                                      5.3,
+                                      2,
+                                      13.55
+                                  ],
+                         "to":  [
+                                    7.9,
+                                    13,
+                                    14.25
+                                ],
+                         "faces":  {
+                                       "north":  {
+                                                     "uv":  [
+                                                                6,
+                                                                9.5,
+                                                                7.5,
+                                                                14.5
+                                                            ],
+                                                     "texture":  "#flap"
+                                                 },
+                                       "east":  {
+                                                    "uv":  [
+                                                               6,
+                                                               9.5,
+                                                               6.5,
+                                                               14.5
+                                                           ],
+                                                    "texture":  "#flap"
+                                                },
+                                       "south":  {
+                                                     "uv":  [
+                                                                7.5,
+                                                                9.5,
+                                                                6,
+                                                                14.5
+                                                            ],
+                                                     "texture":  "#flap"
+                                                 },
+                                       "west":  {
+                                                    "uv":  [
+                                                               7,
+                                                               9.5,
+                                                               7.5,
+                                                               14.5
+                                                           ],
+                                                    "texture":  "#flap"
+                                                },
+                                       "up":  {
+                                                  "uv":  [
+                                                             6,
+                                                             8,
+                                                             7.5,
+                                                             8.5
+                                                         ],
+                                                  "rotation":  180,
+                                                  "texture":  "#flap"
+                                              },
+                                       "down":  {
+                                                    "uv":  [
+                                                               6,
+                                                               14,
+                                                               7.5,
+                                                               14.5
+                                                           ],
+                                                    "rotation":  180,
+                                                    "texture":  "#flap"
+                                                }
+                                   }
+                     },
+                     {
+                         "name":  "curtain_1_2",
+                         "from":  [
+                                      8.1,
+                                      2,
+                                      13.55
+                                  ],
+                         "to":  [
+                                    10.7,
+                                    13,
+                                    14.25
+                                ],
+                         "faces":  {
+                                       "north":  {
+                                                     "uv":  [
+                                                                6,
+                                                                9.5,
+                                                                7.5,
+                                                                14.5
+                                                            ],
+                                                     "texture":  "#flap"
+                                                 },
+                                       "east":  {
+                                                    "uv":  [
+                                                               6,
+                                                               9.5,
+                                                               6.5,
+                                                               14.5
+                                                           ],
+                                                    "texture":  "#flap"
+                                                },
+                                       "south":  {
+                                                     "uv":  [
+                                                                7.5,
+                                                                9.5,
+                                                                6,
+                                                                14.5
+                                                            ],
+                                                     "texture":  "#flap"
+                                                 },
+                                       "west":  {
+                                                    "uv":  [
+                                                               7,
+                                                               9.5,
+                                                               7.5,
+                                                               14.5
+                                                           ],
+                                                    "texture":  "#flap"
+                                                },
+                                       "up":  {
+                                                  "uv":  [
+                                                             6,
+                                                             8,
+                                                             7.5,
+                                                             8.5
+                                                         ],
+                                                  "rotation":  180,
+                                                  "texture":  "#flap"
+                                              },
+                                       "down":  {
+                                                    "uv":  [
+                                                               6,
+                                                               14,
+                                                               7.5,
+                                                               14.5
+                                                           ],
+                                                    "rotation":  180,
+                                                    "texture":  "#flap"
+                                                }
+                                   }
+                     },
+                     {
+                         "name":  "curtain_1_3",
+                         "from":  [
+                                      10.899999999999999,
+                                      2,
+                                      13.55
+                                  ],
+                         "to":  [
+                                    13.499999999999998,
+                                    13,
+                                    14.25
+                                ],
+                         "faces":  {
+                                       "north":  {
+                                                     "uv":  [
+                                                                6,
+                                                                9.5,
+                                                                7.5,
+                                                                14.5
+                                                            ],
+                                                     "texture":  "#flap"
+                                                 },
+                                       "east":  {
+                                                    "uv":  [
+                                                               6,
+                                                               9.5,
+                                                               6.5,
+                                                               14.5
+                                                           ],
+                                                    "texture":  "#flap"
+                                                },
+                                       "south":  {
+                                                     "uv":  [
+                                                                7.5,
+                                                                9.5,
+                                                                6,
+                                                                14.5
+                                                            ],
+                                                     "texture":  "#flap"
+                                                 },
+                                       "west":  {
+                                                    "uv":  [
+                                                               7,
+                                                               9.5,
+                                                               7.5,
+                                                               14.5
+                                                           ],
+                                                    "texture":  "#flap"
+                                                },
+                                       "up":  {
+                                                  "uv":  [
+                                                             6,
+                                                             8,
+                                                             7.5,
+                                                             8.5
+                                                         ],
+                                                  "rotation":  180,
+                                                  "texture":  "#flap"
+                                              },
+                                       "down":  {
+                                                    "uv":  [
+                                                               6,
+                                                               14,
+                                                               7.5,
+                                                               14.5
+                                                           ],
+                                                    "rotation":  180,
+                                                    "texture":  "#flap"
+                                                }
+                                   }
+                     }
+                 ]
+}
