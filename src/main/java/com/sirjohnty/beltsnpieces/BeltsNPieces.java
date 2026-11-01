@@ -46,7 +46,7 @@ public final class BeltsNPieces {
             .icon(() -> new ItemStack(REINFORCED_BELT.get())).displayItems((p,o) -> { o.accept(REINFORCED_BELT.get()); o.accept(BELT_VOID_ITEM.get()); }).build());
     }
     public BeltsNPieces(IEventBus bus,net.neoforged.fml.ModContainer container) {
-        container.registerConfig(net.neoforged.fml.config.ModConfig.Type.SERVER,BeltsNPiecesConfig.SPEC,"beltsnpieces-reinforced-belts.toml");
+        container.registerConfig(net.neoforged.fml.config.ModConfig.Type.SERVER,BeltsNPiecesConfig.SPEC,"beltsnpieces-server.toml");
         container.registerConfig(net.neoforged.fml.config.ModConfig.Type.CLIENT,BeltsNPiecesConfig.CLIENT_SPEC);
         BLOCKS.register(bus); ITEMS.register(bus); ENTITIES.register(bus); TABS.register(bus);
         bus.addListener(BeltsNPieces::capabilities);
