@@ -3,7 +3,7 @@ plugins {
     id 'net.neoforged.moddev' version '2.0.107'
 }
 group = 'com.sirjohnty'
-version = '0.8.0-beta'
+version = '0.9.0-beta'
 base { archivesName = 'beltsnpieces' }
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 repositories {
@@ -123,6 +123,9 @@ sourceSets.test.java {
 }
 sourceSets.test.compileClasspath += sourceSets.main.compileClasspath
 sourceSets.test.runtimeClasspath += sourceSets.main.runtimeClasspath
+
+// Regression checks below run as standalone Java programs, not JUnit tests.
+tasks.named('test', Test) { failOnNoDiscoveredTests = false }
 tasks.register('checkCasingGeometry', JavaExec) {
     group = 'verification'
     dependsOn testClasses
