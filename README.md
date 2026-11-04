@@ -25,5 +25,12 @@ Create Transmission - Transmission chains connect automatically generate when co
 
 Chain conveyor angles, belt lengths and other minor things can be tweaked in the mod's configs
 
+## AI USAGE DISCLAIMER
+
+I want to make it very clear that I used AI tools to assist in the development of the mod - from performance testing, debugging as well as feature implementation. I am new to Minecraft modding so AI tools have been a godsend in learning modding.
+
+I want to stress that I will NEVER use AI for generating mod descriptions, ponder text, any art assets (models, textures),
+
+I made sure to set up my IDE, debugging client as well as a basic understanding of java. I didn't just "vibe" code this mod so if you have nothing nice to say about this fact when I have been completely transparent with my AI usage then don't comment at all please.
 
 

@@ -6,13 +6,8 @@ Use IntelliJ's **Client** configuration in **Debug** mode for everyday changes. 
 
 ## Setup
 
-Use Java 21 and NeoForge 21.1.259, matching the JohntySMP Modrinth instance. The four Create compile/runtime dependencies belong in `libs/`. Optional integration dependencies belong in `dev-libs/` and are not bundled into the mod JAR or tracked by Git.
+Use Java 21 and NeoForge 21.1.259. The four Create compile/runtime dependencies belong in `libs/`. Optional integration dependencies belong in `dev-libs/` and are not bundled into the mod JAR or tracked by Git.
 
-To restore the integration dependencies from the local JohntySMP profile:
-
-```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\setup-dev.ps1
-```
 
 Reload the Gradle project in IntelliJ after changing dependencies. The selected integration set contains Accessories, owo-lib, Curios, Caelus, Elytra Slot, and TFMG. Rendering/performance mods are Sodium, Sodium Extra, Reese's Sodium Options, ImmediatelyFast, and Entity Culling, using the exact versions copied from JohntySMP. Create, Flywheel, Ponder, and Registrate come from `libs/`. Shader mods are not part of this default test setup.
 
