@@ -84,8 +84,15 @@ public final class ReinforcedPulleyBlockEntity extends KineticBlockEntity {
             || next.length>ReinforcedBeltItem.maxLength() || next.length<1e-6
             || !BeltGeometryValidation.returnRunDoesNotFold(next)) return false;
         var previous=path();
+        return canReshape(player,previous,next,reshapePositions(previous,next));
+    }
+    private static Set<BlockPos> reshapePositions(BeltPath previous,BeltPath next) {
+        var positions=new HashSet<>(previous.surface().cells.keySet());
+        positions.addAll(next.surface().cells.keySet());
+        return positions;
+    }
+    private boolean canReshape(net.minecraft.world.entity.player.Player player,BeltPath previous,BeltPath next,Set<BlockPos> positions) {
         var oldCells=previous.surface().cells; var newCells=next.surface().cells;
-        var positions=new java.util.HashSet<BlockPos>(oldCells.keySet()); positions.addAll(newCells.keySet());
         for (BlockPos pos:positions) {
             if (!level.hasChunkAt(pos) || level.isOutsideBuildHeight(pos) || !level.mayInteract(player,pos)
                 || !player.mayUseItemAt(pos,Direction.UP,player.getMainHandItem())) return false;
@@ -112,15 +119,8 @@ public final class ReinforcedPulleyBlockEntity extends KineticBlockEntity {
         var next=new BeltPath(worldPosition,peer,startDirection,endDirection,curveStyle,pathRevision,baseCenter,baseHeight,edits);
         if(next.length>ReinforcedBeltItem.maxLength()||next.length<1e-6 || !BeltGeometryValidation.returnRunDoesNotFold(next)) return false;
         var oldCells=previous.surface().cells;var newCells=next.surface().cells;
-        var positions=new java.util.HashSet<BlockPos>(oldCells.keySet());positions.addAll(newCells.keySet());
-        for(BlockPos pos:positions) {
-            if(!level.hasChunkAt(pos)||level.isOutsideBuildHeight(pos)||!level.mayInteract(player,pos)||!player.mayUseItemAt(pos,Direction.UP,player.getMainHandItem())) return false;
-            var entity=level.getBlockEntity(pos);
-            if(oldCells.containsKey(pos) && !(entity instanceof ReinforcedBeltSpanBlockEntity span && span.belongsTo(worldPosition,peer))) return false;
-            if(newCells.containsKey(pos) && !oldCells.containsKey(pos) && !level.getBlockState(pos).isAir()) return false;
-        }
-        var sorted=cargo.stream().map(c->c.distance/previous.length*next.length).sorted().toList();
-        for(int i=1;i<sorted.size();i++) if(sorted.get(i)-sorted.get(i-1)<.7-1e-7) return false;
+        var positions=reshapePositions(previous,next);
+        if(!canReshape(player,previous,next,positions)) return false;
         var original=new java.util.HashMap<BlockPos,BlockState>();
         for(BlockPos pos:positions) original.put(pos,level.getBlockState(pos));
         var oldEdits=new ArrayList<>(elevationEdits);
@@ -132,16 +132,16 @@ public final class ReinforcedPulleyBlockEntity extends KineticBlockEntity {
                 if(!oldCells.containsKey(pos) && !level.setBlock(pos,BeltsNPieces.SPAN.get().defaultBlockState(),3)) return false;
                 if(!(level.getBlockEntity(pos) instanceof ReinforcedBeltSpanBlockEntity)) return false;
             }
-            elevationCenter=baseCenter;elevationHeight=baseHeight;elevationEdits.clear();elevationEdits.addAll(edits);cachedPath=next;invalidateRenderBoundingBox();
-            target.elevationCenter=baseCenter;target.elevationHeight=baseHeight;target.elevationEdits.clear();target.elevationEdits.addAll(edits);target.cachedPath=null;target.invalidateRenderBoundingBox();
+            setElevation(baseCenter,baseHeight,edits,next);
+            target.setElevation(baseCenter,baseHeight,edits,null);
             for(var entry:newCells.entrySet()) ((ReinforcedBeltSpanBlockEntity)level.getBlockEntity(entry.getKey())).configure(worldPosition,peer,entry.getValue());
             for(BlockPos pos:oldCells.keySet()) if(!newCells.containsKey(pos) && !level.removeBlock(pos,false)) return false;
             for(Cargo c:cargo) {c.distance=c.distance/previous.length*next.length;c.previous=c.distance;}
             setChanged();sendData();target.setChanged();target.sendData();success=true;return true;
         } finally {
             if(!success) {
-                elevationCenter=oldCenter;elevationHeight=oldHeight;elevationEdits.clear();elevationEdits.addAll(oldEdits);cachedPath=previous;invalidateRenderBoundingBox();
-                target.elevationCenter=oldCenter;target.elevationHeight=oldHeight;target.elevationEdits.clear();target.elevationEdits.addAll(oldEdits);target.cachedPath=null;target.invalidateRenderBoundingBox();
+                setElevation(oldCenter,oldHeight,oldEdits,previous);
+                target.setElevation(oldCenter,oldHeight,oldEdits,null);
                 for(BlockPos pos:positions) {
                     if(!level.getBlockState(pos).equals(original.get(pos))) level.setBlock(pos,original.get(pos),3);
                     if(oldCells.containsKey(pos) && level.getBlockEntity(pos) instanceof ReinforcedBeltSpanBlockEntity span)
@@ -150,6 +150,14 @@ public final class ReinforcedPulleyBlockEntity extends KineticBlockEntity {
             }
             dismantling=false;
         }
+    }
+    private void setElevation(double center,double height,List<BeltElevation.Control> edits,BeltPath path) {
+        elevationCenter=center;
+        elevationHeight=height;
+        elevationEdits.clear();
+        elevationEdits.addAll(edits);
+        cachedPath=path;
+        invalidateRenderBoundingBox();
     }
     private final IItemHandler handler=new EndpointHandler();
     private record VisualTransfer(BlockPos owner,Vec3 position,Vec3 previous,long tick) {}
@@ -185,6 +193,7 @@ public final class ReinforcedPulleyBlockEntity extends KineticBlockEntity {
     public ReinforcedPulleyBlockEntity(BlockPos pos,BlockState state) { super(BeltsNPieces.PULLEY_ENTITY.get(),pos,state); }
     @Override public void addBehaviours(List<com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour> behaviours) {
         super.addBehaviours(behaviours);
+        behaviours.add(ReinforcedBeltProcessing.handler(this));
         // Create passes the source belt's movement direction, not the receiving face.
         // Keep this behaviour present even when blocked: Create then queues cargo
         // on its belt instead of ejecting it as a loose entity.
@@ -216,6 +225,7 @@ public final class ReinforcedPulleyBlockEntity extends KineticBlockEntity {
         // Both converted shafts finish setup before the next kinetic tick.
         detachKinetics();updateSpeed=true;
         level.invalidateCapabilities(worldPosition);
+        BeltFunnelConnections.refresh(this);
     }
     public ReinforcedPulleyBlockEntity other() {
         return level!=null && peer!=null && level.hasChunkAt(peer) && level.getBlockEntity(peer) instanceof ReinforcedPulleyBlockEntity b
@@ -335,6 +345,7 @@ public final class ReinforcedPulleyBlockEntity extends KineticBlockEntity {
         super.tick();
         previousTextureTravel=textureTravel;
         if(peer==null||level==null) return;
+        if(!level.isClientSide && level.getGameTime()%20==0) BeltFunnelConnections.refresh(this);
         if(!level.isClientSide && level.getGameTime()%20==0 && level.hasChunkAt(peer) && other()==null) {
             dismantle();level.setBlock(worldPosition,AllBlocks.SHAFT.getDefaultState().setValue(ReinforcedPulleyBlock.AXIS,getBlockState().getValue(ReinforcedPulleyBlock.AXIS)),3);return;
         }
@@ -363,6 +374,7 @@ public final class ReinforcedPulleyBlockEntity extends KineticBlockEntity {
         if(level.isClientSide) textureTravel+=speed;
         for(Cargo c:cargo) {c.previous=c.distance;if(level.isClientSide) c.visualPrevious=c.visualDistance;}
         if(Math.abs(speed)<1e-7) {
+            if(!level.isClientSide) ReinforcedBeltProcessing.stationary(this);
             if(level.isClientSide) smoothCargo();
             // Create belts accept resting items without needing rotational power.
             if(!level.isClientSide && collectDroppedItems()) {
@@ -372,7 +384,8 @@ public final class ReinforcedPulleyBlockEntity extends KineticBlockEntity {
         }
         BeltRiding.carry(this,speed);
         // Process the leading stack first so queued items never overtake it.
-        cargo.sort(speed>0?Comparator.comparingDouble((Cargo c)->c.distance).reversed():Comparator.comparingDouble(c->c.distance));
+        Comparator<Cargo> order=speed>0?Comparator.comparingDouble((Cargo c)->c.distance).reversed():Comparator.comparingDouble(c->c.distance);
+        cargo.sort(order.thenComparingInt(BeltProcessingQueue::priority));
         // Create inserts incoming belt items at the boundary of its end block,
         // half a block beyond our pulley centre.
         Direction outputDirection=speed>0?endDirection:startDirection.getOpposite();
@@ -380,15 +393,22 @@ public final class ReinforcedPulleyBlockEntity extends KineticBlockEntity {
         boolean createReceiver=level.hasChunkAt(outputPos)
             && level.getBlockEntity(outputPos) instanceof com.simibubi.create.content.kinetics.belt.BeltBlockEntity;
         double exitDistance=createReceiver?.5:0;
-        double leader=speed>0?p.length+exitDistance+.7:-exitDistance-.7;
-        Iterator<Cargo> it=cargo.iterator();
+        // No leading stack means no spacing limit. A finite .7-block sentinel deadlocks
+        // processing remainders, which intentionally wait for a full block of clearance.
+        double leader=speed>0?Double.POSITIVE_INFINITY:Double.NEGATIVE_INFINITY;
         boolean removed=false;
-        while(it.hasNext()) {
-            Cargo c=it.next(); double next=Math.clamp(c.distance+speed,-1,p.length+1);
-            next=speed>0?Math.min(next,Math.max(-1,leader-.7)):Math.max(next,Math.min(p.length+1,leader+.7));
-            c.distance=next;leader=next;
-            if(!level.isClientSide && (speed>0?next>=p.length+exitDistance-1e-6:next<=-exitDistance+1e-6)) {
-                if(output(c,speed>0)) {it.remove();removed=true;leader=speed>0?p.length+exitDistance+.7:-exitDistance-.7;}
+        // Native machine callbacks may split a stack into several outputs.
+        for(Cargo c:List.copyOf(cargo)) {
+            double next=BeltProcessingQueue.advance(c,speed,leader,p.length);
+            c.distance=next;
+            boolean heldByMachine=ReinforcedBeltProcessing.advance(this,c,speed);
+            if(c.stack.isEmpty()) {cargo.remove(c);removed=true;continue;}
+            if(heldByMachine) {leader=c.distance;continue;}
+            boolean heldByFunnel=BeltFunnelInteraction.collect(this,c,speed);
+            if(c.stack.isEmpty()) {cargo.remove(c);removed=true;continue;}
+            leader=c.distance;
+            if(!heldByFunnel && !level.isClientSide && (speed>0?next>=p.length+exitDistance-1e-6:next<=-exitDistance+1e-6)) {
+                if(output(c,speed>0)) {cargo.remove(c);removed=true;leader=speed>0?Double.POSITIVE_INFINITY:Double.NEGATIVE_INFINITY;}
             }
         }
         if(level.isClientSide) smoothCargo();
@@ -405,17 +425,13 @@ public final class ReinforcedPulleyBlockEntity extends KineticBlockEntity {
         }
         rememberVisuals();
     }
-    private static Vec3 visualPoint(BeltPath path,double distance) {
-        if(distance<0) return path.start.add(Vec3.atLowerCornerOf(path.startDirection.getNormal()).scale(distance));
-        if(distance>path.length) return path.end.add(Vec3.atLowerCornerOf(path.endDirection.getNormal()).scale(distance-path.length));
-        return path.atDistance(distance);
-    }
+
     private void rememberVisuals() {
         if(level==null || !level.isClientSide || path()==null) return;
         long tick=level.getGameTime();
         Map<UUID,VisualTransfer> memories=VISUAL_TRANSFERS.computeIfAbsent(level,k->new HashMap<>());
         memories.entrySet().removeIf(entry->tick-entry.getValue().tick()>40);
-        for(Cargo c:cargo) memories.put(c.id,new VisualTransfer(worldPosition,visualPoint(path(),c.visualDistance),visualPoint(path(),c.visualPrevious),tick));
+        for(Cargo c:cargo) memories.put(c.id,new VisualTransfer(worldPosition,path().atExtendedDistance(c.visualDistance),path().atExtendedDistance(c.visualPrevious),tick));
     }
     private double projectEntry(BeltPath path,Vec3 pos,double serverDistance) {
         if(serverDistance<0) return Math.clamp(pos.subtract(path.start).dot(Vec3.atLowerCornerOf(path.startDirection.getNormal())),-1,0);
@@ -556,7 +572,7 @@ public final class ReinforcedPulleyBlockEntity extends KineticBlockEntity {
     }
     private void writeCargo(CompoundTag n,HolderLookup.Provider registries) {
         ListTag items=new ListTag();
-        for(Cargo c:cargo) {CompoundTag t=new CompoundTag();t.put("Stack",c.stack.save(registries));t.putDouble("Distance",c.distance);t.putUUID("Id",c.id);t.putInt("Angle",c.angle);t.putDouble("ReferenceHeading",c.referenceHeading);t.putDouble("SideOffset",c.sideOffset);items.add(t);}
+        for(Cargo c:cargo) {if(c.stack.isEmpty()) continue;CompoundTag t=new CompoundTag();t.put("Stack",c.stack.save(registries));t.putDouble("Distance",c.distance);t.putUUID("Id",c.id);t.putInt("Angle",c.angle);t.putDouble("ReferenceHeading",c.referenceHeading);t.putDouble("SideOffset",c.sideOffset);ReinforcedBeltProcessing.write(c,t,registries);items.add(t);}
         n.put("Cargo",items);
     }
     @Override protected void read(CompoundTag n,HolderLookup.Provider registries,boolean clientPacket) {
@@ -594,7 +610,7 @@ public final class ReinforcedPulleyBlockEntity extends KineticBlockEntity {
         sharedSurface.clear();for(long pos:n.getLongArray("SharedSurface")) sharedSurface.add(BlockPos.of(pos));
         readCargo(n,registries,clientPacket);
     }
-    private void syncCargo() {
+    void syncCargo() {
         if(level instanceof net.minecraft.server.level.ServerLevel server) {
             CompoundTag update=new CompoundTag();writeCargo(update,level.registryAccess());
             net.neoforged.neoforge.network.PacketDistributor.sendToPlayersTrackingChunk(server,new ChunkPos(worldPosition),new BeltCargoPayload(worldPosition,update));
@@ -607,7 +623,8 @@ public final class ReinforcedPulleyBlockEntity extends KineticBlockEntity {
         Map<UUID,Cargo> displayed=new HashMap<>();
         if(clientPacket) {rememberVisuals();for(Cargo old:cargo) displayed.put(old.id,old);}
         cargo.clear(); ListTag list=n.getList("Cargo",Tag.TAG_COMPOUND);
-        for(int i=0;i<Math.min(CAPACITY,list.size());i++) {CompoundTag t=list.getCompound(i);ItemStack s=ItemStack.parseOptional(registries,t.getCompound("Stack"));
+        // Processing can split admitted stacks; CAPACITY limits insertion, not saved recipe outputs.
+        for(int i=0;i<list.size();i++) {CompoundTag t=list.getCompound(i);ItemStack s=ItemStack.parseOptional(registries,t.getCompound("Stack"));
             double d=t.getDouble("Distance");if(!s.isEmpty()&&Double.isFinite(d)) {
                 double at=path()==null?0:Math.clamp(d,-1,path().length+1);
                 Cargo item=new Cargo(s,at,t.getInt("Angle"));
@@ -618,7 +635,7 @@ public final class ReinforcedPulleyBlockEntity extends KineticBlockEntity {
                 else if(clientPacket && level!=null && path()!=null) {
                     VisualTransfer transfer=VISUAL_TRANSFERS.getOrDefault(level,Map.of()).get(item.id);
                     if(transfer!=null && !transfer.owner().equals(worldPosition) && level.getGameTime()-transfer.tick()<=10
-                        && transfer.position().distanceToSqr(visualPoint(path(),at))<4) {
+                        && transfer.position().distanceToSqr(path().atExtendedDistance(at))<4) {
                         item.visualDistance=projectEntry(path(),transfer.position(),at);
                         item.visualPrevious=projectEntry(path(),transfer.previous(),at);
                     } else if(at<0 || at>path().length) {
@@ -629,7 +646,7 @@ public final class ReinforcedPulleyBlockEntity extends KineticBlockEntity {
                     }
                 }
                 double heading=t.contains("ReferenceHeading")?t.getDouble("ReferenceHeading"):(path()==null?0:beltHeading(path(),at));
-                item.referenceHeading=Double.isFinite(heading)?heading:0;cargo.add(item);
+                item.referenceHeading=Double.isFinite(heading)?heading:0;ReinforcedBeltProcessing.read(item,t,registries);cargo.add(item);
             }}
         if(clientPacket) invalidateRenderBoundingBox();
     }

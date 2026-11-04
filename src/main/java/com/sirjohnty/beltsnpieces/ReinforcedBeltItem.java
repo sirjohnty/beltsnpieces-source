@@ -152,6 +152,10 @@ public final class ReinforcedBeltItem extends Item {
         if(!level.hasChunkAt(pos) || level.isOutsideBuildHeight(pos) || !level.getWorldBorder().isWithinBounds(pos)) return null;
         // Only replace air: this avoids deleting plants, fluids, block entities or other blocks.
         if(!level.getBlockState(pos).isAir() || !level.getFluidState(pos).isEmpty() || level.getBlockEntity(pos)!=null) return null;
+        return new Target(pos,generatedShaft(level,first,pos,axisChoice),true);
+    }
+    /** Orientation only; blocked previews must not bypass generatedTarget's clearance checks. */
+    public static BlockState generatedShaft(Level level,BlockPos first,BlockPos pos,int axisChoice) {
         int dx=pos.getX()-first.getX(),dz=pos.getZ()-first.getZ();
         // The axle runs across the tread, not along it. On a diagonal tie,
         // retain the source axle for a stable, straight-through approach.
@@ -160,7 +164,7 @@ public final class ReinforcedBeltItem extends Item {
             :Math.abs(dx)>Math.abs(dz)?Direction.Axis.Z:Direction.Axis.X;
         Direction chosen=selectedEndDirection(axisChoice);
         if(chosen!=null) axis=chosen.getAxis()==Direction.Axis.X?Direction.Axis.Z:Direction.Axis.X;
-        return new Target(pos,AllBlocks.SHAFT.getDefaultState().setValue(RotatedPillarKineticBlock.AXIS,axis),true);
+        return AllBlocks.SHAFT.getDefaultState().setValue(RotatedPillarKineticBlock.AXIS,axis);
     }
     public static boolean hasShaft(Player player) {
         if(player.isCreative()) return true;

@@ -3,7 +3,7 @@ plugins {
     id 'net.neoforged.moddev' version '2.0.107'
 }
 group = 'com.sirjohnty'
-version = '0.6.1-beta'
+version = '0.6.2-beta'
 base { archivesName = 'beltsnpieces' }
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 repositories {

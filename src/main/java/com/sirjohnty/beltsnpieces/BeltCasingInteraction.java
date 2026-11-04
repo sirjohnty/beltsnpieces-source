@@ -32,9 +32,7 @@ public final class BeltCasingInteraction {
             var material=BeltCasings.fromItem(event.getItemStack());
             if(material==null || !material.id().equals(SteelBeltCasing.BLOCK)) return;
             if(!level.isClientSide) {
-                ((SteelBeltCasing)regular).beltsnpieces$applySteel();
-                ((com.simibubi.create.content.kinetics.belt.BeltBlock)regular.getBlockState().getBlock())
-                    .updateCoverProperty(level,pos,regular.getBlockState());
+                applySteel(regular);
                 var sound=material.state().getSoundType(level,pos,player);
                 level.playSound(null,pos,sound.getPlaceSound(),SoundSource.BLOCKS,
                     (sound.getVolume()+1)/2,sound.getPitch()*.8f);
@@ -72,6 +70,11 @@ public final class BeltCasingInteraction {
         } else return;
         event.setCancellationResult(InteractionResult.SUCCESS);event.setCanceled(true);
     }
+    private static void applySteel(BeltBlockEntity belt) {
+        ((SteelBeltCasing)belt).beltsnpieces$applySteel();
+        ((com.simibubi.create.content.kinetics.belt.BeltBlock)belt.getBlockState().getBlock())
+            .updateCoverProperty(belt.getLevel(),belt.getBlockPos(),belt.getBlockState());
+    }
     private static void encaseSegment(PlayerInteractEvent.RightClickBlock event,BeltBlockEntity clicked) {
         var player=event.getEntity();var level=event.getLevel();var stack=event.getItemStack();
         var material=BeltCasings.fromItem(stack);
@@ -95,9 +98,7 @@ public final class BeltCasingInteraction {
             for(var segment:segments) {
                 var pos=segment.getBlockPos();
                 if(material.id().equals(SteelBeltCasing.BLOCK)) {
-                    ((SteelBeltCasing)segment).beltsnpieces$applySteel();
-                    ((com.simibubi.create.content.kinetics.belt.BeltBlock)segment.getBlockState().getBlock())
-                        .updateCoverProperty(level,pos,segment.getBlockState());
+                    applySteel(segment);
                 } else {
                     // Use the block interaction so optional casing addons retain
                     // their own material handling rather than becoming plain brass.

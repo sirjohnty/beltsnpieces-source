@@ -2,7 +2,6 @@ package com.sirjohnty.beltsnpieces.client;
 
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
-import com.simibubi.create.content.kinetics.belt.BeltHelper;
 import com.simibubi.create.AllPartialModels;
 import net.createmod.catnip.render.CachedBuffers;
 import com.simibubi.create.content.kinetics.belt.BeltBlockEntity;
@@ -17,7 +16,6 @@ import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.blockentity.*;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.phys.Vec3;
 
 public final class ReinforcedBeltRenderer implements BlockEntityRenderer<ReinforcedPulleyBlockEntity> {
@@ -133,53 +131,7 @@ public final class ReinforcedBeltRenderer implements BlockEntityRenderer<Reinfor
             if(connected(be,path,start)) renderConnection(poses,vertices,path,origin,start,scroll,textureDirection,texturePhase,light,.5);
             else renderEnd(poses,vertices,path,origin,start,scroll,textureDirection,texturePhase,light);
         }
-        for(var c:be.cargo) {
-            double distance=c.visualPrevious+(c.visualDistance-c.visualPrevious)*partial;
-            if(distance>revealed) continue;
-            Vec3 normal=surfaceNormal(path,distance);
-            // Keep the item above the local belt surface, including steep slopes.
-            double clampedDistance=Math.clamp(distance,0,path.length);
-            int sideIndex=(int)Math.round(path.parameterAtDistance(clampedDistance)*BeltPath.SAMPLES);
-            Vec3 side=beltSide(path,sideIndex).normalize().scale(c.sideOffset);
-            Vec3 p=itemPosition(path,distance).subtract(origin).add(normal.scale(.125)).add(side);
-            var renderer=Minecraft.getInstance().getItemRenderer();
-            var model=renderer.getModel(c.stack,be.getLevel(),null,0);
-            boolean upright=BeltHelper.isItemUpright(c.stack);
-            poses.pushPose();poses.translate(p.x,p.y,p.z);
-            poses.mulPose(new org.joml.Quaternionf().rotationTo(0,1,0,(float)normal.x,(float)normal.y,(float)normal.z));
-            if(upright) {
-                Vec3 camera=Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
-                Vec3 world=p.add(origin),relative=world.subtract(camera);
-                poses.mulPose(Axis.YP.rotation((float)(Math.atan2(relative.x,relative.z)+Math.PI)));
-                poses.translate(0,.09375,.0625);
-            }
-            int itemLight=LevelRenderer.getLightColor(be.getLevel(),BlockPos.containing(p.add(origin).add(0,.2,0)));
-            var player=Minecraft.getInstance().player;
-            int extra=player!=null && player.getEyePosition(1).distanceTo(p.add(origin))<16
-                ? net.minecraft.util.Mth.log2(c.stack.getCount())/2 : 0;
-            var random=new java.util.Random(c.angle);
-            boolean packageItem=com.simibubi.create.content.logistics.box.PackageItem.isPackage(c.stack);
-            for(int copy=0;copy<=extra;copy++) {
-                poses.pushPose();
-                poses.mulPose(Axis.YP.rotationDegrees(ReinforcedPulleyBlockEntity.cargoAngle(path,c,distance)));
-                if(!model.isGui3d()&&!upright) {
-                    poses.translate(0,-.09375,0);
-                    poses.mulPose(Axis.XP.rotationDegrees(90));
-                }
-                if(model.isGui3d()&&!packageItem)
-                    poses.translate(random.nextFloat()*.0625f*copy,0,random.nextFloat()*.0625f*copy);
-                if(packageItem) {poses.translate(0,.25,0);poses.scale(1.5f,1.5f,1.5f);}
-                else poses.scale(.5f,.5f,.5f);
-                renderer.render(c.stack,ItemDisplayContext.FIXED,false,poses,buffers,itemLight,OverlayTexture.NO_OVERLAY,model);
-                poses.popPose();
-                if(upright) poses.translate(0,0,-.0625);
-                else {
-                    if(!model.isGui3d()) poses.mulPose(Axis.YP.rotationDegrees(10));
-                    poses.translate(0,model.isGui3d()?.015625:.0625,0);
-                }
-            }
-            poses.popPose();
-        }
+        BeltCargoRenderer.render(be,path,origin,revealed,partial,poses,buffers);
     }
     // Join the curved shell to the exact horizontal edge of each pulley casing.
     // Use the same selected cross-sections as the tread at every quality level.
@@ -366,18 +318,7 @@ public final class ReinforcedBeltRenderer implements BlockEntityRenderer<Reinfor
         distanceBands.put(be,band);
         return Math.max(-1,maximum-band);
     }
-    private static Vec3 surfaceNormal(BeltPath path,double distance) {
-        if(distance<=0 || distance>=path.length) return new Vec3(0,1,0);
-        Vec3 tangent=path.atDistance(Math.min(path.length,distance+.05)).subtract(path.atDistance(Math.max(0,distance-.05)));
-        double horizontal=Math.hypot(tangent.x,tangent.z);
-        if(horizontal<1e-8) return new Vec3(0,1,0);
-        return new Vec3(-tangent.x*tangent.y/horizontal,horizontal,-tangent.z*tangent.y/horizontal).normalize();
-    }
-    private static Vec3 itemPosition(BeltPath path,double distance) {
-        if(distance<0) return path.start.add(Vec3.atLowerCornerOf(path.startDirection.getNormal()).scale(distance));
-        if(distance>path.length) return path.end.add(Vec3.atLowerCornerOf(path.endDirection.getNormal()).scale(distance-path.length));
-        return path.atDistance(distance);
-    }
+
     private record PhaseLink(ReinforcedPulleyBlockEntity upstream,double offset) {}
     private static int textureDirection(ReinforcedPulleyBlockEntity belt) {
         return BeltPath.driveSign(belt.getBlockState().getValue(ReinforcedPulleyBlock.AXIS),belt.startDirection);
@@ -450,7 +391,7 @@ public final class ReinforcedBeltRenderer implements BlockEntityRenderer<Reinfor
     }
     private static void renderConnection(PoseStack poses,VertexConsumer v,BeltPath path,Vec3 origin,boolean start,double scroll,int textureDirection,double texturePhase,int light,double extension) {
         int i=start?0:BeltPath.SAMPLES;
-        Vec3 p=path.samples[i].subtract(origin),side=beltSide(path,i);
+        Vec3 p=path.samples[i].subtract(origin),side=path.sideAtSample(i);
         Vec3 outward=Vec3.atLowerCornerOf((start?path.startDirection.getOpposite():path.endDirection).getNormal());
         Vec3 q=p.add(outward.scale(extension));
         float a=(float)((path.distances[i]-scroll)*textureDirection+texturePhase),b=a+(float)((start?-extension:extension)*textureDirection);
@@ -476,7 +417,7 @@ public final class ReinforcedBeltRenderer implements BlockEntityRenderer<Reinfor
         int index=start?0:BeltPath.SAMPLES;
         Vec3 outward=Vec3.atLowerCornerOf((start?path.startDirection.getOpposite():path.endDirection).getNormal());
         Vec3 center=path.samples[index].subtract(origin);
-        Vec3 side=beltSide(path,index).scale(13.8/14.0);
+        Vec3 side=path.sideAtSample(index).scale(13.8/14.0);
         Vec3 outer=center.add(outward.scale(8.05/16)),inner=center.add(outward.scale(6.05/16));
         // The band spans Y=4..12 while the two treads span Y=11..13 and 3..5.
         Vec3 otl=outer.add(side).add(0,-1.0/16,0),otr=outer.subtract(side).add(0,-1.0/16,0);
@@ -502,7 +443,7 @@ public final class ReinforcedBeltRenderer implements BlockEntityRenderer<Reinfor
         // Create caps each two-pixel tread at 15/16; the outer band itself
         // stays at Y=4..12. Do not extend the band to the full belt height.
         Vec3 edge=center.add(outward.scale(7.0/16));
-        Vec3 fullSide=beltSide(path,index);
+        Vec3 fullSide=path.sideAtSample(index);
         Vec3 topL=edge.add(fullSide),topR=edge.subtract(fullSide);
         Vec3 topBottomL=topL.add(0,-2.0/16,0),topBottomR=topR.add(0,-2.0/16,0);
         Vec3 lowL=topL.add(0,-8.0/16,0),lowR=topR.add(0,-8.0/16,0);
@@ -525,13 +466,7 @@ public final class ReinforcedBeltRenderer implements BlockEntityRenderer<Reinfor
         vertex(poses,vertices,itr,15f/16,endTop,light,.8f,inward);
 
     }
-    private static Vec3 beltSide(BeltPath path,int index) {
-        Vec3 tangent;
-        if(index==0) tangent=Vec3.atLowerCornerOf(path.startDirection.getNormal());
-        else if(index==BeltPath.SAMPLES) tangent=Vec3.atLowerCornerOf(path.endDirection.getNormal());
-        else tangent=path.samples[Math.min(BeltPath.SAMPLES,index+2)].subtract(path.samples[Math.max(0,index-2)]);
-        return new Vec3(tangent.z,0,-tangent.x).normalize().scale(7.0/16);
-    }
+
     /** Reuse path cross-sections and merge spans only where the visible shape stays close. */
     private static final class RenderGeometry {
         private final double positionTolerance,frameTolerance,maxSpan;
@@ -544,8 +479,8 @@ public final class ReinforcedBeltRenderer implements BlockEntityRenderer<Reinfor
             frameTolerance=detail<0?.14:detail==0?.08:detail==1?.04:detail==2?.015:.007;
             maxSpan=detail<0?4:detail==0?3:detail==1?2:detail==2?1:.5;
             for(int i=0;i<=BeltPath.SAMPLES;i+=2) {
-                sides[i]=beltSide(path,i);
-                normals[i]=surfaceNormal(path,path.distances[i]);
+                sides[i]=path.sideAtSample(i);
+                normals[i]=path.surfaceNormal(path.distances[i]);
                 Vec3[] casing=casingFrame(path,Vec3.ZERO,path.distances[i],path.samples[i],sides[i],normals[i]);
                 Vec3 bottom=casing[0].add(casing[2].scale(-13.0/16));
                 casingLeft[i]=bottom.add(casing[1].scale(8.0/7));

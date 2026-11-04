@@ -16,11 +16,6 @@ public final class BeltRiding {
     private static final ResourceLocation NO_AUTO_STEP=ResourceLocation.fromNamespaceAndPath("beltsnpieces","belt_no_auto_step");
     private BeltRiding() {}
 
-    public static Vec3 atExtendedDistance(BeltPath path,double distance) {
-        if(distance<0) return path.start.add(Vec3.atLowerCornerOf(path.startDirection.getNormal()).scale(distance));
-        if(distance>path.length) return path.end.add(Vec3.atLowerCornerOf(path.endDirection.getNormal()).scale(distance-path.length));
-        return path.atDistance(distance);
-    }
     public static double progress(BeltPath path,Vec3 feet) {
         double best=Double.MAX_VALUE,distance=0;
         for(int i=0;i<BeltPath.SAMPLES;i++) {
@@ -35,7 +30,7 @@ public final class BeltRiding {
         return distance;
     }
     private static Vec3 side(BeltPath path,double distance) {
-        Vec3 tangent=atExtendedDistance(path,distance+.02).subtract(atExtendedDistance(path,distance-.02));
+        Vec3 tangent=path.atExtendedDistance(distance+.02).subtract(path.atExtendedDistance(distance-.02));
         return new Vec3(tangent.z,0,-tangent.x).normalize();
     }
     /** Draw riders towards the centre gradually, without teleporting them sideways. */
@@ -45,7 +40,7 @@ public final class BeltRiding {
     public static Vec3 displacement(BeltPath path,Vec3 feet,double amount,double correctionLimit) {
         if(amount==0) return Vec3.ZERO;
         double d=progress(path,feet);
-        Vec3 center=atExtendedDistance(path,d),target=atExtendedDistance(path,d+amount);
+        Vec3 center=path.atExtendedDistance(d),target=path.atExtendedDistance(d+amount);
         double offset=feet.subtract(center).dot(side(path,d));
         offset-=Math.clamp(offset,-correctionLimit,correctionLimit);
         Vec3 destination=target.add(side(path,d+amount).scale(offset));
@@ -63,7 +58,7 @@ public final class BeltRiding {
     private static double risingBeltClearance(ReinforcedPulleyBlockEntity owner,LivingEntity entity,Vec3 movement,double amount) {
         BeltPath path=owner.path();double d=progress(path,entity.position());
         double ahead=Math.copySign(Math.max(.38,Math.hypot(movement.x,movement.z)),amount);
-        if(atExtendedDistance(path,d+ahead).y<=atExtendedDistance(path,d).y+1e-5) return 0;
+        if(path.atExtendedDistance(d+ahead).y<=path.atExtendedDistance(d).y+1e-5) return 0;
         var level=owner.getLevel();AABB box=entity.getBoundingBox();
         AABB area=box.expandTowards(movement.x,0,movement.z);
         java.util.List<VoxelShape> shapes=new java.util.ArrayList<>();
@@ -125,7 +120,7 @@ public final class BeltRiding {
         if(!grounded) return false;
         double d=progress(path,feet);
         if(d<-.5||d>path.length+.5) return false;
-        Vec3 center=atExtendedDistance(path,d);
+        Vec3 center=path.atExtendedDistance(d);
         double gap=feet.y-center.y,dx=feet.x-center.x,dz=feet.z-center.z;
         return gap>=-1e-6&&gap<=.30&&dx*dx+dz*dz<=BeltSurface.HALF_WIDTH*BeltSurface.HALF_WIDTH;
     }

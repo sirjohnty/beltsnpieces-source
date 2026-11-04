@@ -34,6 +34,12 @@ public final class DevelopmentReadiness {
         if(cleanup!=null) {
             if(--cleanupDelay<=0) {cleanup.run();cleanup=null;networkFixture=null;LogUtils.getLogger().info("READINESS fixtures cleaned");}
             else if(cleanupDelay%10==0 && networkFixture!=null) {
+                if(cleanupDelay==60) {
+                    var state=networkFixture.getLevel().getBlockState(networkFixture.getBlockPos().above());
+                    if(state.getBlock() instanceof com.simibubi.create.content.logistics.funnel.BeltFunnelBlock)
+                        LogUtils.getLogger().info("READINESS FUNNEL REPAIR PASS: stale wall funnel connected automatically");
+                    else LogUtils.getLogger().error("READINESS FUNNEL REPAIR FAILED: {}",state);
+                }
                 var handler=networkFixture.itemHandler();
                 handler.extractItem(0,64,false);
                 handler.insertItem(0,new ItemStack(Items.DIAMOND,cleanupDelay/10),false);
@@ -87,7 +93,30 @@ public final class DevelopmentReadiness {
             stack.setCount(1);
             require(!item.place(level,player,stack,a,target,Direction.UP,Vec3.atCenterOf(b)).consumesAction(),"Unaffordable placement accepted");
             stack.setCount(32);
+            // Funnels installed before shaft conversion must reconnect without being replaced.
+            level.setBlock(a.above().west(),Blocks.CHEST.defaultBlockState(),3);
+            level.setBlock(b.above().east(),Blocks.CHEST.defaultBlockState(),3);
+            level.setBlock(a.above(),AllBlocks.ANDESITE_FUNNEL.getDefaultState()
+                .setValue(com.simibubi.create.content.logistics.funnel.FunnelBlock.FACING,Direction.EAST)
+                .setValue(com.simibubi.create.content.logistics.funnel.FunnelBlock.EXTRACTING,true),3);
+            level.setBlock(b.above(),AllBlocks.BRASS_FUNNEL.getDefaultState()
+                .setValue(com.simibubi.create.content.logistics.funnel.FunnelBlock.FACING,Direction.WEST),3);
+            var oldStartFunnel=level.getBlockEntity(a.above());
+            var oldEndFunnel=level.getBlockEntity(b.above());
+            var oldFilter=((com.simibubi.create.content.logistics.funnel.FunnelBlockEntity)oldEndFunnel).getBehaviour(
+                com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringBehaviour.TYPE);
+            oldFilter.setFilter(new ItemStack(Items.DIAMOND));
+            oldFilter.count=4;oldFilter.upTo=false;
             require(item.place(level,player,stack,a,target,Direction.UP,Vec3.atCenterOf(b)).consumesAction(),"Valid placement rejected");
+            LogUtils.getLogger().info("READINESS FUNNEL CONNECTION: start={}, end={}",level.getBlockState(a.above()),level.getBlockState(b.above()));
+            require(level.getBlockState(a.above()).getBlock() instanceof com.simibubi.create.content.logistics.funnel.BeltFunnelBlock
+                && level.getBlockState(b.above()).getBlock() instanceof com.simibubi.create.content.logistics.funnel.BeltFunnelBlock,
+                "Pre-existing funnels did not connect after belt placement");
+            require(level.getBlockEntity(a.above())==oldStartFunnel && level.getBlockEntity(b.above())==oldEndFunnel,"Funnel reconnection replaced its block entity");
+            require(oldFilter.count==4 && !oldFilter.upTo && oldFilter.test(new ItemStack(Items.DIAMOND))
+                && !oldFilter.test(new ItemStack(Items.EMERALD)),"Funnel reconnection lost filtering settings");
+            level.removeBlock(a.above(),false);level.removeBlock(b.above(),false);
+            level.removeBlock(a.above().west(),false);level.removeBlock(b.above().east(),false);
             require(stack.getCount()==32-cost,"Incorrect belt cost");
             var owner=(ReinforcedPulleyBlockEntity)level.getBlockEntity(a);
             require(owner!=null&&owner.routeLoaded()&&owner.other()!=null,"Endpoints not connected");
@@ -104,6 +133,9 @@ public final class DevelopmentReadiness {
             require(handler.insertItem(0,new ItemStack(Items.DIAMOND,11),false).isEmpty(),"Cargo insertion failed");
             require(handler.extractItem(0,4,true).getCount()==4&&owner.cargo.getFirst().stack.getCount()==11,"Simulated extraction mutated cargo");
             require(handler.extractItem(0,4,false).getCount()==4&&owner.cargo.getFirst().stack.getCount()==7,"Cargo extraction lost items");
+            DevelopmentProcessingTiming.run(owner);
+            DevelopmentProcessingReadiness.run(owner);
+            checkFunnel(owner,b);
             require(owner.setBeltColor(5)&&owner.setCasing(BeltCasings.BRASS),"Dye/casing application failed");
             var saved=owner.saveWithoutMetadata(level.registryAccess());
             owner.loadWithComponents(saved,level.registryAccess());
@@ -135,6 +167,13 @@ public final class DevelopmentReadiness {
             require(item.place(level,player,player.getMainHandItem(),a,target,Direction.UP,Vec3.atCenterOf(b)).consumesAction(),"Network fixture placement failed");
             networkFixture=(ReinforcedPulleyBlockEntity)level.getBlockEntity(a);
             networkFixture.paidBelts=0;
+            // Simulate a stale saved wall funnel; the normal server tick must repair it.
+            level.setBlock(a.above().west(),Blocks.CHEST.defaultBlockState(),3);
+            level.setBlock(a.above(),AllBlocks.ANDESITE_FUNNEL.getDefaultState()
+                .setValue(com.simibubi.create.content.logistics.funnel.FunnelBlock.FACING,Direction.EAST)
+                .setValue(com.simibubi.create.content.logistics.funnel.FunnelBlock.EXTRACTING,true),18);
+            require(level.getBlockState(a.above()).getBlock() instanceof com.simibubi.create.content.logistics.funnel.FunnelBlock,
+                "Stale funnel fixture was not created");
             passed=true;
         } finally {
             Runnable removeFixtures=()->{
@@ -147,5 +186,55 @@ public final class DevelopmentReadiness {
             if(passed) {cleanup=removeFixtures;cleanupDelay=100;}
             else removeFixtures.run();
         }
+    }
+    private static void checkFunnel(ReinforcedPulleyBlockEntity owner,BlockPos endpoint) {
+        var level=owner.getLevel();
+        owner.cargo.clear();
+        for(int rpm:new int[]{64,480,4096}) for(boolean reversed:new boolean[]{false,true}) for(int scenario=0;scenario<8;scenario++) {
+            BlockPos funnelPos=(reversed?owner.getBlockPos():endpoint).above();
+            Direction facing=reversed?Direction.EAST:Direction.WEST;
+            BlockPos chestPos=funnelPos.relative(facing.getOpposite());
+            level.setBlock(chestPos,Blocks.CHEST.defaultBlockState(),3);
+            var chest=(net.minecraft.world.level.block.entity.ChestBlockEntity)level.getBlockEntity(chestPos);
+            var state=(scenario==3 || scenario>=5?AllBlocks.BRASS_BELT_FUNNEL:AllBlocks.ANDESITE_BELT_FUNNEL).getDefaultState()
+                .setValue(com.simibubi.create.content.logistics.funnel.BeltFunnelBlock.HORIZONTAL_FACING,facing)
+                .setValue(com.simibubi.create.content.logistics.funnel.BeltFunnelBlock.SHAPE,
+                    com.simibubi.create.content.logistics.funnel.BeltFunnelBlock.Shape.RETRACTED);
+            level.setBlock(funnelPos,state,3);
+            var funnel=(com.simibubi.create.content.logistics.funnel.FunnelBlockEntity)level.getBlockEntity(funnelPos);
+            require(funnel!=null,"Funnel fixture missing");
+            if(scenario==1 || scenario==4 || scenario==6) {
+                for(int slot=0;slot<chest.getContainerSize();slot++) chest.setItem(slot,new ItemStack(Items.COBBLESTONE,64));
+                if(scenario==4 || scenario==6) chest.setItem(0,new ItemStack(Items.DIAMOND,62));
+            }
+            if(scenario==2) level.setBlock(funnelPos,state.setValue(
+                com.simibubi.create.content.logistics.funnel.BeltFunnelBlock.POWERED,true),2);
+            if(scenario==3 || scenario>=5) {
+                var filter=funnel.getBehaviour(com.simibubi.create.foundation.blockEntity.behaviour.filtering.FilteringBehaviour.TYPE);
+                filter.setFilter(new ItemStack(scenario==3?Items.EMERALD:Items.DIAMOND));
+                if(scenario==5 || scenario==6) {filter.count=4;filter.upTo=false;}
+            }
+            owner.cargo.add(new ReinforcedPulleyBlockEntity.Cargo(new ItemStack(Items.DIAMOND,7),reversed?owner.path().length:0));
+            for(int tick=0;tick<80;tick++) {
+                // Drive transport synchronously without attaching an unpowered kinetic network.
+                owner.updateSpeed=false;
+                owner.other().updateSpeed=false;
+                owner.setSpeed((reversed?-rpm:rpm)*BeltPath.driveSign(
+                    owner.getBlockState().getValue(ReinforcedPulleyBlock.AXIS),owner.startDirection));
+                funnel.tick();
+                owner.tick();
+            }
+            int count=0,remaining=0;
+            for(int slot=0;slot<chest.getContainerSize();slot++) if(chest.getItem(slot).is(Items.DIAMOND)) count+=chest.getItem(slot).getCount();
+            for(var cargo:owner.cargo) remaining+=cargo.stack.getCount();
+            int inserted=count-(scenario==4 || scenario==6?62:0),expected=scenario==0 || scenario==7?7:scenario==4?2:scenario==5?4:0;
+            LogUtils.getLogger().info("READINESS FUNNEL: rpm={}, reverse={}, scenario={}, inserted={}, remaining={}",rpm,reversed,scenario,inserted,remaining);
+            require(inserted==expected && remaining==7-expected,"Funnel transfer/count conservation failed");
+            for(var cargo:owner.cargo) require(Math.abs(cargo.distance-(reversed?0:owner.path().length))<1e-6,"Blocked funnel did not hold cargo");
+            owner.cargo.clear();chest.clearContent();
+            level.removeBlock(funnelPos,false);level.removeBlock(chestPos,false);
+        }
+        owner.setSpeed(0);
+        require(owner.itemHandler().insertItem(0,new ItemStack(Items.DIAMOND,7),false).isEmpty(),"Restore cargo after funnel check");
     }
 }

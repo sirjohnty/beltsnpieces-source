@@ -20,6 +20,11 @@ public final class ReinforcedBeltSpanBlock extends Block implements EntityBlock,
         if(!level.isClientSide) level.scheduleTick(pos,this,100);
     }
     @Override public BlockEntity newBlockEntity(BlockPos pos,BlockState state) { return new ReinforcedBeltSpanBlockEntity(pos,state); }
+    @Override public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level,BlockState state,BlockEntityType<T> type) {
+        return type==BeltsNPieces.SPAN_ENTITY.get()?(world,pos,block,entity)->{
+            if(entity instanceof ReinforcedBeltSpanBlockEntity span) span.tick();
+        }:null;
+    }
     @Override public RenderShape getRenderShape(BlockState state) { return RenderShape.INVISIBLE; }
     @Override public VoxelShape getShape(BlockState state,BlockGetter level,BlockPos pos,CollisionContext context) {
         return level.getBlockEntity(pos) instanceof ReinforcedBeltSpanBlockEntity be ? be.selectionShape() : Shapes.empty();

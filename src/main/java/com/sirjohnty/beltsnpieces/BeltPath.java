@@ -212,17 +212,41 @@ public final class BeltPath {
         return start.scale(u*u*u).add(control1.scale(3*u*u*t)).add(control2.scale(3*u*t*t)).add(end.scale(t*t*t));
     }
     public Vec3 atDistance(double distance) {
-        double d = Math.clamp(distance, 0, length);
+        double d=Math.clamp(distance,0,length);
+        int hi=upperSample(d),lo=hi-1;
+        double span=distances[hi]-distances[lo];
+        return samples[lo].lerp(samples[hi],span<1e-9?0:(d-distances[lo])/span);
+    }
+    private int upperSample(double d) {
         int lo = 0, hi = SAMPLES;
         while (lo+1 < hi) { int mid=(lo+hi)/2; if (distances[mid] < d) lo=mid; else hi=mid; }
-        double span=distances[hi]-distances[lo];
-        return samples[lo].lerp(samples[hi], span < 1e-9 ? 0 : (d-distances[lo])/span);
+        return hi;
     }
     public double parameterAtDistance(double distance) {
-        double d=Math.clamp(distance,0,length);int lo=0,hi=SAMPLES;
-        while(lo+1<hi) {int mid=(lo+hi)/2;if(distances[mid]<d) lo=mid;else hi=mid;}
+        double d=Math.clamp(distance,0,length);
+        int hi=upperSample(d),lo=hi-1;
         double span=distances[hi]-distances[lo];
         return (lo+(span<1e-9?0:(d-distances[lo])/span))/SAMPLES;
+    }
+    /** Extend horizontally beyond pulley centres for cargo and rider handoffs. */
+    public Vec3 atExtendedDistance(double distance) {
+        if(distance<0) return start.add(Vec3.atLowerCornerOf(startDirection.getNormal()).scale(distance));
+        if(distance>length) return end.add(Vec3.atLowerCornerOf(endDirection.getNormal()).scale(distance-length));
+        return atDistance(distance);
+    }
+    /** Sampled tread half-width, shared by rendering and placement previews. */
+    public Vec3 sideAtSample(int index) {
+        Vec3 tangent=index==0?Vec3.atLowerCornerOf(startDirection.getNormal())
+            :index==SAMPLES?Vec3.atLowerCornerOf(endDirection.getNormal())
+            :samples[Math.min(SAMPLES,index+2)].subtract(samples[Math.max(0,index-2)]);
+        return new Vec3(tangent.z,0,-tangent.x).normalize().scale(7.0/16);
+    }
+    public Vec3 surfaceNormal(double distance) {
+        if(distance<=0 || distance>=length) return new Vec3(0,1,0);
+        Vec3 tangent=atDistance(Math.min(length,distance+.05)).subtract(atDistance(Math.max(0,distance-.05)));
+        double horizontal=Math.hypot(tangent.x,tangent.z);
+        if(horizontal<1e-8) return new Vec3(0,1,0);
+        return new Vec3(-tangent.x*tangent.y/horizontal,horizontal,-tangent.z*tangent.y/horizontal).normalize();
     }
     /** Keep the pulley and the next block of belt clear of wrench grab points. */
     public boolean canGrab(double parameter) {

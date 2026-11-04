@@ -11,7 +11,36 @@ public final class ReadinessGeometryCheck {
     private static void require(boolean value,String message) {if(!value) throw new AssertionError(message);}
     private static void equal(double actual,double expected,String message) {require(Math.abs(actual-expected)<1e-9,message+": "+actual);}
     public static void main(String[] args) {
+        BeltProcessingQueueCheck.run();
+        equal(BeltCargoMotion.advance(6,.133,6,12),6,"Overlapping outputs must wait, not reverse");
+        equal(BeltCargoMotion.advance(6,-.133,6,12),6,"Reverse belt outputs must wait, not advance");
+        var motionRandom=new Random(95172);
+        for(int i=0;i<20000;i++) {
+            double length=2+motionRandom.nextDouble()*62;
+            double distance=-1+motionRandom.nextDouble()*(length+2);
+            double speed=(motionRandom.nextBoolean()?1:-1)*motionRandom.nextDouble()*8;
+            double leader=distance+motionRandom.nextDouble()*4-2;
+            double next=BeltCargoMotion.advance(distance,speed,leader,length);
+            double progress=(next-distance)*Math.signum(speed);
+            require(progress>=-1e-12 && progress<=Math.abs(speed)+1e-12,"Cargo reversed or exceeded belt speed");
+            require(next>=-1 && next<=length+1,"Cargo escaped transport bounds");
+            equal(BeltCargoMotion.advance(distance,0,leader,length),distance,"Stopped belt moved cargo");
+            double clearLeader=distance+Math.copySign(20,speed);
+            equal(BeltCargoMotion.advance(distance,speed,clearLeader,length),
+                Math.clamp(distance+speed,-1,length+1),"Unblocked cargo did not follow belt speed");
+        }
         var straight=new BeltPath(BlockPos.ZERO,new BlockPos(6,0,0),Direction.EAST,Direction.EAST,3);
+        var work=BeltProcessingGeometry.station(straight,new BlockPos(3,0,0));
+        require(work!=null,"Flat span must support processing");
+        equal(work.distance(),3,"Flat span processing centre");
+        require(BeltProcessingGeometry.station(straight,new BlockPos(3,-1,0))==null,"Lower run must not become a processing surface");
+        require(BeltProcessingGeometry.station(straight,new BlockPos(3,0,1))==null,"Sideways machine must not reach the belt");
+        var slope=new BeltPath(BlockPos.ZERO,new BlockPos(6,4,0),Direction.EAST,Direction.EAST,3);
+        require(BeltProcessingGeometry.station(slope,new BlockPos(3,2,0))==null,"Steep span must not process at the machine centre");
+        var curve=new BeltPath(BlockPos.ZERO,new BlockPos(8,0,8),Direction.EAST,Direction.SOUTH,0);
+        boolean curveStation=false;
+        for(var pos:curve.surface().cells.keySet()) if(BeltProcessingGeometry.station(curve,pos)!=null) curveStation=true;
+        require(curveStation,"A level curve crossing a machine working space must remain eligible");
         double top=straight.start.y;
         require(BeltPicking.intersect(straight,new Vec3(3,top-.06,2),new Vec3(3,top-.06,-2))!=null,"Upper run target");
         require(BeltPicking.intersect(straight,new Vec3(3,top-.56,2),new Vec3(3,top-.56,-2))!=null,"Lower run target");
@@ -50,6 +79,7 @@ public final class ReadinessGeometryCheck {
             BlockPos end=new BlockPos(direction.getStepX()*12,height,direction.getStepZ()*12);
             var path=new BeltPath(new BlockPos(-17,30,-17),end.offset(-17,30,-17),direction,direction,style);
             require(Double.isFinite(path.length)&&path.length>0,"Finite route");
+            checkPathQueries(path);
             Set<Long> chunks=new HashSet<>();for(long chunk:path.routeChunks()) chunks.add(chunk);
             for(Vec3 point:path.samples) require(chunks.contains(ChunkPos.asLong(BlockPos.containing(point))),"Route sample chunk omitted");
             for(BlockPos cell:path.surface().cells.keySet()) require(chunks.contains(ChunkPos.asLong(cell)),"Surface chunk omitted");
@@ -58,6 +88,31 @@ public final class ReadinessGeometryCheck {
             routes++;
         }
         System.out.println("Readiness geometry PASS: drag projection/snapping/rebase, invalid inputs, palette fallbacks, transparency, "+routes+" routes/chunk caches/collision serialization");
+    }
+    private static void checkPathQueries(BeltPath path) {
+        require(path.atExtendedDistance(-.5).equals(path.start.add(Vec3.atLowerCornerOf(path.startDirection.getNormal()).scale(-.5))),
+            "Incoming cargo extension changed");
+        require(path.atExtendedDistance(path.length+.5).equals(path.end.add(Vec3.atLowerCornerOf(path.endDirection.getNormal()).scale(.5))),
+            "Outgoing cargo extension changed");
+        for(int i=0;i<=BeltPath.SAMPLES;i++) {
+            double d=path.distances[i];
+            require(path.atDistance(d).distanceTo(path.samples[i])<1e-9,"Sample lookup changed");
+            equal(path.parameterAtDistance(d),(double)i/BeltPath.SAMPLES,"Sample parameter changed");
+            if(i==BeltPath.SAMPLES) continue;
+            // An independent linear walk checks interpolation against the binary lookup.
+            double between=(path.distances[i]+path.distances[i+1])*.5;
+            int upper=1;
+            while(upper<BeltPath.SAMPLES && path.distances[upper]<between) upper++;
+            double span=path.distances[upper]-path.distances[upper-1];
+            double fraction=span<1e-9?0:(between-path.distances[upper-1])/span;
+            Vec3 expected=path.samples[upper-1].lerp(path.samples[upper],fraction);
+            require(path.atDistance(between).equals(expected),"Interpolated position changed");
+            equal(path.parameterAtDistance(between),(upper-1+fraction)/BeltPath.SAMPLES,"Interpolated parameter changed");
+        }
+        equal(path.sideAtSample(0).length(),7.0/16,"Start tread width changed");
+        equal(path.sideAtSample(BeltPath.SAMPLES).length(),7.0/16,"End tread width changed");
+        require(path.surfaceNormal(0).equals(new Vec3(0,1,0)),"Start pulley normal changed");
+        require(path.surfaceNormal(path.length).equals(new Vec3(0,1,0)),"End pulley normal changed");
     }
     // Frozen pre-optimization intersection algorithm: guards broadphase/cache equivalence.
     private static Vec3 referenceIntersection(BeltPath path,Vec3 eye,Vec3 end) {

@@ -35,9 +35,9 @@ class CasingGeometryCheck {
         return min;
     }
     static Vec3[] safeFrame(BeltPath p,int i) {
-        Vec3 t=i==0?Vec3.atLowerCornerOf(p.startDirection.getNormal()):i==BeltPath.SAMPLES?Vec3.atLowerCornerOf(p.endDirection.getNormal()):p.samples[Math.min(BeltPath.SAMPLES,i+2)].subtract(p.samples[Math.max(0,i-2)]);
-        Vec3 side=new Vec3(t.z,0,-t.x).normalize().scale(7.0/16);
-        return com.sirjohnty.beltsnpieces.client.BeltCasingGeometry.frame(p,Vec3.ZERO,p.distances[i],p.samples[i],side,normal(p,p.distances[i]));
+        Vec3 side=p.sideAtSample(i),up=p.surfaceNormal(p.distances[i]);
+        if(up.distanceTo(normal(p,p.distances[i]))>1e-12)throw new AssertionError("Shared normal changed");
+        return com.sirjohnty.beltsnpieces.client.BeltCasingGeometry.frame(p,Vec3.ZERO,p.distances[i],p.samples[i],side,up);
     }
     static void check(BeltPath p) {
         for(int stride:new int[]{2,4,8,16,32})for(int i=stride;i<=BeltPath.SAMPLES;i+=stride){var a=safeFrame(p,i-stride);var b=safeFrame(p,i);Vec3 along=p.samples[i].subtract(p.samples[i-stride]);

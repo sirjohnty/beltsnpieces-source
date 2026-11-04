@@ -44,18 +44,9 @@ public final class BeltCasingGeometry {
     }
 
     private static Vec3[] sample(BeltPath path,int i) {
-        Vec3 tangent=i==0?Vec3.atLowerCornerOf(path.startDirection.getNormal())
-            :i==BeltPath.SAMPLES?Vec3.atLowerCornerOf(path.endDirection.getNormal())
-            :path.samples[Math.min(BeltPath.SAMPLES,i+2)].subtract(path.samples[Math.max(0,i-2)]);
-        Vec3 side=new Vec3(tangent.z,0,-tangent.x).normalize().scale(7.0/16);
+        Vec3 side=path.sideAtSample(i);
         double distance=path.distances[i];
-        Vec3 normal=UP;
-        if(distance>0 && distance<path.length) {
-            Vec3 delta=path.atDistance(Math.min(path.length,distance+.05))
-                .subtract(path.atDistance(Math.max(0,distance-.05)));
-            double horizontal=Math.hypot(delta.x,delta.z);
-            if(horizontal>=1e-8) normal=new Vec3(-delta.x*delta.y/horizontal,horizontal,-delta.z*delta.y/horizontal).normalize();
-        }
+        Vec3 normal=path.surfaceNormal(distance);
         return rawFrame(path,Vec3.ZERO,distance,path.samples[i],side,normal);
     }
 
