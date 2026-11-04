@@ -33,4 +33,6 @@ I want to stress that I will NEVER use AI for generating mod descriptions, ponde
 
 I made sure to set up my IDE, debugging client as well as a basic understanding of java. I didn't just "vibe" code this mod so if you have nothing nice to say about this fact when I have been completely transparent with my AI usage then don't comment at all please.
 
+Ponder scenes are placeholder - they will have proper text written when I get the mod feature complete.
+
 
