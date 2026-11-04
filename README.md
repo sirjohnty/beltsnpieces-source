@@ -2,6 +2,8 @@
 
 An addon for the Create Mod adding features and changes focusing on belts and logistics
 
+Requires: Minecraft 1.21.1, Java 21, NeoForge 21.1.206 or newer, Create 6.0.9 or newer.
+
 ## Additions
 Reinforced belts providing more options for belt curves and heights
 
