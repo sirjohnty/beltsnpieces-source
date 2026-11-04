@@ -26,6 +26,11 @@ public final class ReinforcedBeltSpanBlock extends Block implements EntityBlock,
         }:null;
     }
     @Override public RenderShape getRenderShape(BlockState state) { return RenderShape.INVISIBLE; }
+    @Override public net.minecraft.world.item.ItemStack getCloneItemStack(BlockState state,
+            net.minecraft.world.phys.HitResult target, LevelReader level, BlockPos pos,
+            net.minecraft.world.entity.player.Player player) {
+        return new net.minecraft.world.item.ItemStack(BeltsNPieces.REINFORCED_BELT.get());
+    }
     @Override public VoxelShape getShape(BlockState state,BlockGetter level,BlockPos pos,CollisionContext context) {
         return level.getBlockEntity(pos) instanceof ReinforcedBeltSpanBlockEntity be ? be.selectionShape() : Shapes.empty();
     }

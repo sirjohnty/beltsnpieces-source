@@ -20,6 +20,11 @@ public final class ReinforcedPulleyBlock extends RotatedPillarKineticBlock imple
     @Override public BlockState getRotatedBlockState(BlockState state, Direction face) { return state; }
     @Override public Class<ReinforcedPulleyBlockEntity> getBlockEntityClass() { return ReinforcedPulleyBlockEntity.class; }
     @Override public BlockEntityType<? extends ReinforcedPulleyBlockEntity> getBlockEntityType() { return BeltsNPieces.PULLEY_ENTITY.get(); }
+    @Override public net.minecraft.world.item.ItemStack getCloneItemStack(BlockState state,
+            net.minecraft.world.phys.HitResult target, LevelReader level, BlockPos pos,
+            net.minecraft.world.entity.player.Player player) {
+        return new net.minecraft.world.item.ItemStack(BeltsNPieces.REINFORCED_BELT.get());
+    }
     @Override public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
         return state.getValue(AXIS)==Direction.Axis.X ? box(0,2,2,16,13,14) : box(2,2,0,14,13,16);
     }
