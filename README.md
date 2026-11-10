@@ -40,3 +40,21 @@ I made sure to set up my IDE, debugging client as well as a basic understanding 
 
 
 
+
+## Building from source
+
+Install Java 21. This checkout uses NeoForge 21.1.259 through the Gradle wrapper.
+
+Before compiling, supply these external dependency JARs (they are not included in Git):
+
+- `libs/create-1.21.1-6.0.10.jar`
+- `libs/flywheel-neoforge-1.21.1-1.0.6.jar`
+- `libs/ponder-neoforge-1.0.82+mc1.21.1.jar`
+- `libs/Registrate-MC1.21-1.3.0+67.jar`
+- `dev-libs/createtransmission-1.2.2+neoforge-create6-1.21.1.jar`
+
+Create Transmission is optional when playing the released mod, but its API is required to compile the compatibility code. Obtain these versions from their publishers. `setup-libraries.ps1 -SourceDirectory <folder>` can copy and check the four core libraries; place Create Transmission in `dev-libs` separately. No other optional integration mods or personal game saves are required to compile.
+
+On Windows, run `.\gradlew.bat build`. On Linux/macOS, run `bash ./gradlew build`. Gradle downloads the remaining build dependencies. The release JAR is written to `build/libs/beltsnpieces-<version>-1.21.1-neoforge.jar`.
+
+Generated build output, Gradle caches, IDE settings, dependency JARs, and the development game directory are ignored by Git. They do not belong in a source download. See `DEVELOPMENT.md` for optional local testing details.
