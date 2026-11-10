@@ -35,8 +35,9 @@ public final class BeltVoidBlockEntity extends BlockEntity {
     }
 
     public static void clientTick(Level level, BlockPos pos, BlockState state, BeltVoidBlockEntity be) {
-        // Keep idle particles local to viewers within 16 blocks.
-        if (level.hasNearbyAlivePlayer(pos.getX() + .5, pos.getY() + .5, pos.getZ() + .5, 16)
+        // Only emit during the pulse sent by the server when a stack is voided.
+        if (be.pulseTicks > 0
+            && level.hasNearbyAlivePlayer(pos.getX() + .5, pos.getY() + .5, pos.getZ() + .5, 16)
             && level.random.nextInt(4) == 0) {
             Vector3f color = level.random.nextBoolean()
                 ? new Vector3f(1f, .2f, .65f) : new Vector3f(.6f, .15f, 1f);
